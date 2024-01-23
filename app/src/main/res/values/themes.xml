@@ -1,0 +1,10 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="Base.Theme.MultiPageTesting2" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/carolinaBlue</item>
+    </style>
+
+    <style name="Theme.MultiPageTesting2" parent="Base.Theme.MultiPageTesting2" />
+</resources>

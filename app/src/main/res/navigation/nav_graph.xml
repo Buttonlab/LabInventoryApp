@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    android:label="CellScanner"
+    app:startDestination="@id/settingsFragment">
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.example.multipagetesting2.SettingsFragment"
+        android:label="Settings"
+        tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/inventoryFragment"
+        android:name="com.example.multipagetesting2.InventoryFragment"
+        android:label="Inventory"
+        tools:layout="@layout/fragment_inventory" />
+    <fragment
+        android:id="@+id/tagFinderFragment"
+        android:name="com.example.multipagetesting2.TagFinderFragment"
+        android:label="Tag Finder"
+        tools:layout="@layout/fragment_tag_finder" />
+    <fragment
+        android:id="@+id/tagActionFragment"
+        android:name="com.example.multipagetesting2.TagActionFragment"
+        android:label="Tag Action"
+        tools:layout="@layout/fragment_tag_action" />
+    <fragment
+        android:id="@+id/killFragment"
+        android:name="com.example.multipagetesting2.KillFragment"
+        android:label="Kill Tag"
+        tools:layout="@layout/fragment_kill" />
+    <fragment
+        android:id="@+id/summaryFragment"
+        android:name="com.example.multipagetesting2.SummaryFragment"
+        android:label="Summary"
+        tools:layout="@layout/fragment_summary"/>
+</navigation>

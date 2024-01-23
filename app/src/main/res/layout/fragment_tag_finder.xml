@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".TagFinderFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:weightSum="10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:padding="4dp"
+            android:weightSum="3">
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2.5"
+                android:paddingRight="8dp">
+                <AutoCompleteTextView
+                    android:id="@+id/targetEPC"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Enter or select Tag ID"
+                    android:textAlignment="center"
+                    android:textSize="18sp" />
+                <ImageButton
+                    android:id="@+id/targetClear"
+                    android:layout_width="48dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignEnd="@id/targetEPC"
+                    android:layout_alignRight="@id/targetEPC"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/ic_cross"
+                    android:background="?android:attr/selectableItemBackground"/>
+            </RelativeLayout>
+
+            <ImageButton
+                android:id="@+id/epcDropdown"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5"
+                android:src="@drawable/ic_dropdown"
+                app:cornerRadius="6dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/signalStrengthLinearBox"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_weight="4"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:weightSum="10">
+            <View
+                android:id="@+id/sBarL3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/colorGray" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5" />
+            <View
+                android:id="@+id/sBarL2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:layout_weight="1"
+                android:background="@color/colorGray" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5" />
+            <View
+                android:id="@+id/sBarL1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
+                android:layout_weight="1"
+                android:background="@color/colorGray" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5" />
+            <View
+                android:id="@+id/sBarC"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="80dp"
+                android:layout_marginBottom="80dp"
+                android:layout_weight="1"
+                android:background="@color/colorGray" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5" />
+            <View
+                android:id="@+id/sBarR1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="50dp"
+                android:layout_weight="1"
+                android:background="@color/colorGray" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5" />
+            <View
+                android:id="@+id/sBarR2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:layout_weight="1"
+                android:background="@color/colorGray" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight=".5" />
+            <View
+                android:id="@+id/sBarR3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@color/colorGray" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="5"
+            android:orientation="vertical"
+            android:weightSum="4.5">
+            <TextView
+                android:id="@+id/filterTitle"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight=".5"
+                android:padding="4dp"
+                android:text="@string/filters"
+                android:textSize="20sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/typeFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Primary/Immortal" />
+                    <ImageButton
+                        android:id="@+id/typeClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/typeFilter"
+                        android:layout_alignRight="@id/typeFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/typeDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/genotypeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/genotypeFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Genotype" />
+                    <ImageButton
+                        android:id="@+id/genotypeClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/genotypeFilter"
+                        android:layout_alignRight="@id/genotypeFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/genotypeDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/distNumLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/distNumFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Dist #" />
+                    <ImageButton
+                        android:id="@+id/distNumClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/distNumFilter"
+                        android:layout_alignRight="@id/distNumFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/distNumDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/surfaceLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/surfaceFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Surface" />
+                    <ImageButton
+                        android:id="@+id/surfaceClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/surfaceFilter"
+                        android:layout_alignRight="@id/surfaceFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/surfaceDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+
+
+
+
+            <LinearLayout
+                android:id="@+id/cellTypeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/cellTypeFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Cell Type" />
+                    <ImageButton
+                        android:id="@+id/cellTypeClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/cellTypeFilter"
+                        android:layout_alignRight="@id/cellTypeFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/cellTypeDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/genemodLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/genemodFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Genemod" />
+                    <ImageButton
+                        android:id="@+id/genemodClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/genemodFilter"
+                        android:layout_alignRight="@id/genemodFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/genemodDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/resistanceLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/resistanceFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Resistance" />
+                    <ImageButton
+                        android:id="@+id/resistanceClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/resistanceFilter"
+                        android:layout_alignRight="@id/resistanceFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/resistanceDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

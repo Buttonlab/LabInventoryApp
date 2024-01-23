@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/transparent" /> <!-- Background color of the view -->
+
+    <!-- Define the thickness of the borders -->
+    <stroke
+        android:width="5dp"
+        android:color="@color/basinSlate" /> <!-- Border color -->
+
+    <!-- Optional: You can add padding inside the border if needed -->
+    <padding
+        android:left="5dp"
+        android:top="5dp"
+        android:right="5dp"
+        android:bottom="5dp" />
+
+    <!-- Optional: You can also define corners if you need rounded borders -->
+    <corners android:radius="10dp" />
+</shape>

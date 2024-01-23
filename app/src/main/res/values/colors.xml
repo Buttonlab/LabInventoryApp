@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="carolinaBlue">#7BAFD4</color>
+    <color name="backgroundGray">#F8F8F8</color>
+    <color name="navy">#13294B</color>
+    <color name="basinSlate">#4F758B</color>
+    <color name="warning">#E04A4A</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="colorGray">#D3D3D3</color>
+    <color name="colorRed">#FF0000</color>
+    <color name="colorOrange">#FF7F00</color>
+    <color name="colorGreen">#00FF00</color>
+
+</resources>

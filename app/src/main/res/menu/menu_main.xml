@@ -1,0 +1,39 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.multipagetesting2.MainActivity">
+    <item
+        android:id="@+id/InventoryFragment"
+        android:title="@string/inventory"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/TagFinderFragment"
+        android:title="@string/tag_finder"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/TagActionFragment"
+        android:title="@string/tag_action"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/killFragment"
+        android:title="@string/kill_tag"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/summaryFragment"
+        android:title="Summary"
+        app:showAsAction="never"
+        />
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/connect_reader_menu_item"
+        android:title="@string/connect_reader_menu_item_text"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/disconnect_reader_menu_item"
+        android:title="@string/disconnect_reader_menu_item_text"
+        app:showAsAction="never"/>
+</menu>
