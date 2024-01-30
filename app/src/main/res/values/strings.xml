@@ -49,4 +49,9 @@
     <string name="tag_dist1_value">---Tag dist1 value---</string>
     <string name="tag_genotype_value">---Tag genotype value---</string>
     <string name="tag_well_count">---tag well count---</string>
+    <string name="api_queue_warning">The API cannot be reached right now, please connect to the network before you can continue!</string>
+    <string name="request_target">Request Target(s):</string>
+    <string name="request_type">Request Type: </string>
+    <string name="request_time">Request Time: </string>
+    <string name="result">Result:</string>
 </resources>

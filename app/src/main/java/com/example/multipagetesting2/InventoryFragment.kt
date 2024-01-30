@@ -17,11 +17,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.multipagetesting2.databinding.FragmentInventoryBinding
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.uk.tsl.rfid.asciiprotocol.AsciiCommander
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.example.multipagetesting2.*
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -236,11 +236,16 @@ class InventoryFragment : Fragment() {
                     viewLifecycleOwner.lifecycleScope.launch {
                         // Ping API to see if it can be reached
                         var canReachAPI = false
-                        for (i in 1..2) {
-                            canReachAPI = DataRepository.pingAPI()
-                            if (canReachAPI) {
-                                break
+                        for (j in 1..2) {
+                            try {
+                                canReachAPI = DataRepository.pingAPI()
+                                if (canReachAPI) {
+                                    break
+                                }
+                            } catch (e: Exception) {
+                                canReachAPI = false
                             }
+
                         }
 
                         if (canReachAPI) {  // If the API can be reached make the request
@@ -262,12 +267,13 @@ class InventoryFragment : Fragment() {
                                         break
                                     } else {
                                         try {
-                                            val msg = response.body()?.error
+                                            val temp = response.errorBody()?.string().toString()
+                                            val msg = Gson().fromJson(temp, BasicResponse::class.java).error
                                             Log.e("InventoryFragment", "Action call failed:\n $msg")
                                             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                                             break
                                         } catch (e: Exception) {
-                                            val msg = response.errorBody()?.string()
+                                            val msg = "Error in parsing message!"
                                             Log.e("InventoryFragment", "Action call failed:\n $msg")
                                             Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                                             break
@@ -278,11 +284,11 @@ class InventoryFragment : Fragment() {
                                 }
                             }
 
-                        } else {  // If the API can be reached save the request to the queue
-                            val request = QueuedApiRequest("applyActions", Gson().toJson(request))
-                            saveRequestToQueue(request)
+                        } else {  // If the API cant be reached save the request to the queue
+                            val tempRequest = QueuedApiRequest("Inventory", Gson().toJson(request))
+                            saveRequestToQueue(requireContext(), tempRequest)
 
-                            Toast.makeText(requireContext(), "Tag(s) successfully inventoried", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(requireContext(), "Inventory Queued", Toast.LENGTH_SHORT).show()
                             withContext(Dispatchers.Main) {
                                 tagAdapter.clearData()
                                 location = null
@@ -324,24 +330,6 @@ class InventoryFragment : Fragment() {
 
     private fun getCommander(): AsciiCommander? {
         return AsciiCommander.sharedInstance()
-    }
-
-    // This saves an API request to the shared preferences file for the app
-    fun saveRequestToQueue(request: QueuedApiRequest) {
-        val sharedPreferences = requireContext().getSharedPreferences("${requireContext().packageName}.ApiQueue", Context.MODE_PRIVATE)
-        val queue = getQueueFromPreferences(sharedPreferences)
-        queue.add(request)
-        with(sharedPreferences.edit()) {
-            putString("queue", Gson().toJson(queue))
-            apply()
-        }
-    }
-
-    // This gets the queue from the shared preferences that is stored as a json string
-    fun getQueueFromPreferences(sharedPreferences: SharedPreferences): MutableList<QueuedApiRequest> {
-        val queueJson = sharedPreferences.getString("queue", "[]")
-        val type = object : TypeToken<MutableList<QueuedApiRequest>>() {}.type
-        return Gson().fromJson(queueJson, type)
     }
 
 }

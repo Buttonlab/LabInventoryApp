@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -19,6 +20,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.multipagetesting2.databinding.ActivityMainBinding
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import com.uk.tsl.rfid.DeviceListActivity
 import com.uk.tsl.rfid.DeviceListActivity.EXTRA_DEVICE_ACTION
 import com.uk.tsl.rfid.DeviceListActivity.EXTRA_DEVICE_INDEX
@@ -148,6 +150,19 @@ class  MainActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        // This is used to show/hide the API Queue page depending on if it is empty
+        super.onPrepareOptionsMenu(menu)
+
+        // Find the menu item you want to show/hide
+        val menuItem = menu.findItem(R.id.apiQueueFragment)
+
+        // Set the item's visibility
+        menuItem.isVisible = !isQueueEmpty(applicationContext)
+
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -181,6 +196,11 @@ class  MainActivity : AppCompatActivity() {
             R.id.summaryFragment -> {
                 val navController = findNavController(R.id.nav_host_fragment_content_main)
                 navController.navigate(R.id.summaryFragment)
+                true
+            }
+            R.id.apiQueueFragment -> {
+                val navController = findNavController(R.id.nav_host_fragment_content_main)
+                navController.navigate(R.id.apiQueueFragment)
                 true
             }
             R.id.connect_reader_menu_item -> {
@@ -451,6 +471,5 @@ class  MainActivity : AppCompatActivity() {
         val sharedPref = getSharedPreferences("${applicationContext.packageName}.AppPreferences", Context.MODE_PRIVATE)
         return sharedPref.getString("lastConnectedReader", null)
     }
-
 
 }

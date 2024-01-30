@@ -36,4 +36,9 @@
         android:name="com.example.multipagetesting2.SummaryFragment"
         android:label="Summary"
         tools:layout="@layout/fragment_summary"/>
+    <fragment
+        android:id="@+id/apiQueueFragment"
+        android:name="com.example.multipagetesting2.ApiQueueFragment"
+        android:label="API Queue"
+        tools:layout="@layout/fragment_api_queue" />
 </navigation>

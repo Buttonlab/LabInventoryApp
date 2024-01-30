@@ -29,6 +29,10 @@
         android:title="@string/settings"
         app:showAsAction="never" />
     <item
+        android:id="@+id/apiQueueFragment"
+        android:title="API Queue"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/connect_reader_menu_item"
         android:title="@string/connect_reader_menu_item_text"
         app:showAsAction="never"/>

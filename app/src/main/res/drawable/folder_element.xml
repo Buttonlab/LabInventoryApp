@@ -4,7 +4,7 @@
     <!-- This is the main background of your view -->
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="#F2F2F2" />
+            <solid android:color="@color/white" />
         </shape>
     </item>
 

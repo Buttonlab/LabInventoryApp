@@ -34,12 +34,13 @@ class RfidTagsAdapter(private val tags: ArrayList<String>) : RecyclerView.Adapte
 
                 val genotype = substitutions?.subs?.get("genotype")?.get(tagText.substring(1,2)) ?: tagText.substring(1,2)
                 val distNum = tagText.substring(2,4).toInt(36)
+                val year = tagText.substring(4,6)
                 val owner = substitutions?.subs?.get("owner")?.get(tagText.substring(6,7)) ?: tagText.substring(6,7)
                 val passage = tagText.substring(7,8).toInt(36)
                 val surface = substitutions?.subs?.get("surface")?.get(tagText.substring(8,9)) ?: tagText.substring(8,9)
                 val number = tagText.substring(9,10).toInt(36)
 
-                textVisible = "$genotype$distNum   $owner\nOn:$surface   Psg#$passage   #$number"
+                textVisible = "$genotype$distNum$year   $owner\nOn:$surface   Psg#$passage   #$number"
             } catch (e: Exception) {
                 textVisible = "$tagText   ERROR!"
             }

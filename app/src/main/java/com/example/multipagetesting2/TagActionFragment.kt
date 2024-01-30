@@ -22,6 +22,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.multipagetesting2.databinding.FragmentTagActionBinding
+import com.google.gson.Gson
 import com.uk.tsl.rfid.asciiprotocol.AsciiCommander
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -510,29 +511,51 @@ class TagActionFragment : Fragment() {
                     // Sending the action with the API, trying twice to protect against network issues
                     viewLifecycleOwner.lifecycleScope.launch {
                         for (i in 1..2) {
-                            try {
-                                val response = DataRepository.applyActions(request)
-                                if (response.isSuccessful) {
-                                    val msg = response.body()?.success
-                                    Log.d("InventoryFragment", "Action call works:\n $msg")
-                                    Toast.makeText(requireContext(), "Action '$chosenAction' applied.", Toast.LENGTH_SHORT).show()
-                                    break
-                                } else {
-                                    try {
-                                        val msg = response.body()?.error
-                                        Log.e("InventoryFragment", "Action call failed:\n $msg")
-                                        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-                                        break
-                                    } catch (e: Exception) {
-                                        val msg = response.errorBody()?.string()
-                                        Log.e("InventoryFragment", "Action call failed:\n $msg")
-                                        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                            var canReachAPI = false
+                            for (j in 1..2) {
+                                try {
+                                    canReachAPI = DataRepository.pingAPI()
+                                    if (canReachAPI) {
                                         break
                                     }
+                                } catch (e: Exception) {
+                                    canReachAPI = false
                                 }
-                            } catch (e: Exception) {
-                                Log.e("InventoryFragment", "Failing to apply inventory action")
+
                             }
+
+                            if (canReachAPI) {  // If the API can be reached send the action
+                                try {
+                                    val response = DataRepository.applyActions(request)
+                                    if (response.isSuccessful) {
+                                        val msg = response.body()?.success
+                                        Log.d("InventoryFragment", "Action call works:\n $msg")
+                                        Toast.makeText(requireContext(), "Action '$chosenAction' applied.", Toast.LENGTH_SHORT).show()
+                                        break
+                                    } else {
+                                        try {
+                                            val temp = response.errorBody()?.string().toString()
+                                            val msg = Gson().fromJson(temp, BasicResponse::class.java).error
+                                            Log.e("InventoryFragment", "Action call failed:\n $msg")
+                                            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                                            break
+                                        } catch (e: Exception) {
+                                            val msg = "Error in parsing message!"
+                                            Log.e("InventoryFragment", "Action call failed:\n $msg")
+                                            Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+                                            break
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("InventoryFragment", "Failing to apply inventory action")
+                                }
+                            } else {  // If the API cant be reached save the request to the queue
+                                val tempRequest = QueuedApiRequest("Inventory", Gson().toJson(request))
+                                saveRequestToQueue(requireContext(), tempRequest)
+
+                                Toast.makeText(requireContext(), "Action request queued!", Toast.LENGTH_SHORT).show()
+                            }
+
                         }
                     }
 

@@ -9,6 +9,7 @@ import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
 import java.lang.reflect.Array
 import java.lang.reflect.Type
+import java.time.LocalDateTime
 
 // Used by the endpoints which dont otherwise return data like the kill and action endpoints
 data class BasicResponse(
@@ -76,7 +77,8 @@ data class ActionRequest(
 
 data class QueuedApiRequest(
     val type: String,
-    val param: String // The parameters to send, stored as json string
+    val param: String, // The parameters to send, stored as json string
+    val time: LocalDateTime = LocalDateTime.now() // When the request was added
 )
 
 

@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.multipagetesting2.databinding.FragmentKillBinding
+import com.google.gson.Gson
 import com.uk.tsl.rfid.asciiprotocol.AsciiCommander
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -131,26 +132,46 @@ class KillFragment : Fragment() {
                 // Killing the rfid tag with this command
                 viewModel.killTarget(hexStr)
 
-                if (viewModel.checkTag(hexStr)) {
-                    // TODO: This doesnt appear to work
+                if (viewModel.checkTag(hexStr)) {// TODO: This doesnt appear to work
                     Toast.makeText(requireContext(), "Kill succeeded!", Toast.LENGTH_SHORT).show()
 
                     // TODO: call the api kill command here
                     viewLifecycleOwner.lifecycleScope.launch {
-                        for (i in 1..2) {
+                        var canReachAPI = false
+                        for (j in 1..2) {
                             try {
-                                // Call the kill cell endpoint for the API
-                                val toKill = viewModel.hexToTagAscii(hexStr)
-                                val response = DataRepository.killCellByID(toKill, viewModel.asciiToCrc32(toKill))
-                                if (response.isSuccessful) {
+                                canReachAPI = DataRepository.pingAPI()
+                                if (canReachAPI) {
                                     break
                                 }
                             } catch (e: Exception) {
-                                e.printStackTrace()
-                                Log.e("SummaryFragment", "Failing to get cell info")
-                                if (i < 2) delay(1000)
+                                canReachAPI = false
                             }
+
                         }
+
+                        if (canReachAPI) {  // If the API can be reached send the kill command
+                            for (i in 1..2) {
+                                try {
+                                    // Call the kill cell endpoint for the API
+                                    val toKill = viewModel.hexToTagAscii(hexStr)
+                                    val response = DataRepository.killCellByID(toKill, viewModel.asciiToCrc32(toKill))
+                                    if (response.isSuccessful) {
+                                        break
+                                    }
+                                } catch (e: Exception) {
+                                    e.printStackTrace()
+                                    Log.e("SummaryFragment", "Failing to get cell info")
+                                    if (i < 2) delay(1000)
+                                }
+                            }
+                        } else {  // If the API cant be reached save the request to the queue
+                            val request = QueuedApiRequest("Inventory", viewModel.hexToTagAscii(hexStr))
+                            saveRequestToQueue(requireContext(), request)
+
+                            Toast.makeText(requireContext(), "Kill request queued!", Toast.LENGTH_SHORT).show()
+                        }
+
                     }
                 }
             }
