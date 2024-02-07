@@ -54,4 +54,5 @@
     <string name="request_type">Request Type: </string>
     <string name="request_time">Request Time: </string>
     <string name="result">Result:</string>
+    <string name="tag_parent_cells_value">---tag parent cells value---</string>
 </resources>

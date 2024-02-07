@@ -117,6 +117,8 @@ class SummaryFragment : Fragment() {
     private lateinit var washScheduleBox: LinearLayout
     private lateinit var tagTreatmentStart: TextView
     private lateinit var treatmentStartBox: LinearLayout
+    private lateinit var parentCellsBox: LinearLayout
+    private lateinit var parentCells: TextView
     private lateinit var tagNotes: TextView
     private lateinit var notesBox: LinearLayout
 
@@ -214,6 +216,8 @@ class SummaryFragment : Fragment() {
         washScheduleBox = binding.washScheduleBox
         tagTreatmentStart = binding.tagTreatmentStart
         treatmentStartBox = binding.treatmentStartBox
+        parentCellsBox = binding.parentCellsBox
+        parentCells = binding.parentCells
         tagNotes = binding.tagNotes
         notesBox = binding.notesBox
 
@@ -340,6 +344,8 @@ class SummaryFragment : Fragment() {
         washScheduleBox.visibility = View.GONE
         tagTreatmentStart.text = ContextCompat.getString(requireContext(), R.string.tag_treatment_start_value)
         treatmentStartBox.visibility = View.GONE
+        parentCellsBox.visibility = View.GONE
+        parentCells.text = ContextCompat.getString(requireContext(), R.string.tag_parent_cells_value)
         tagNotes.text = ContextCompat.getString(requireContext(), R.string.tag_notes_value)
         notesBox.visibility = View.GONE
 
@@ -430,12 +436,13 @@ class SummaryFragment : Fragment() {
                 Triple(mediaSupplementsBox, tagMediaSupplements, "mediaSupplements"),
                 Triple(antibioticsBox, tagAntibiotics, "antibiotics"),
                 Triple(wellCountBox, tagWellCount, "wellCount"),
-                Triple(createdOnBox, tagCreated, "NONE"),
-                Triple(lastFeedBox, tagLastFeed, "NONE"),
-                Triple(lastWashBox, tagLastWash, "NONE"),
+                Triple(createdOnBox, tagCreated, "creationDate"),
+                Triple(lastFeedBox, tagLastFeed, "lastWash"),
+                Triple(lastWashBox, tagLastWash, "lastFeed"),
                 Triple(feedScheduleBox, tagFeedSchedule, "feedingSchedule"),
                 Triple(washScheduleBox, tagWashSchedule, "washSchedule"),
-                Triple(treatmentStartBox, tagTreatmentStart, "NONE"),
+                Triple(treatmentStartBox, tagTreatmentStart, "treatmentStart"),
+                Triple(parentCellsBox, parentCells, "parentCells"),
                 Triple(notesBox, tagNotes, "notes"))
             val regex = "---(.*?)---".toRegex()
 

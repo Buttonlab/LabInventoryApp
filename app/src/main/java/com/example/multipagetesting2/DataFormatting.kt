@@ -64,7 +64,8 @@ data class CellItem(
     val feedingSchedule: String?,
     val washSchedule: String?,
     val treatmentStart: String?,
-    val notes: String?
+    val notes: String?,
+    val parentCells: String?
 )
 
 data class ActionRequest(
