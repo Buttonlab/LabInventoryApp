@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -149,18 +150,27 @@ class SettingsFragment : Fragment() {
     }
 
     private fun isValidIP(ip: String): Boolean {
-        // Extract the various parts of the given address
-        val parts = ip.split(":", limit=2)
-        if (parts.size != 2) { return false }
-        val ipParts = parts[0].split(".")
-        val port = parts[1]
+        if (ip.count{it == ':'} > 1 || ip.count{it == '.'} > 3  || ip.count{it == '.'} < 1) { return false }
 
-        // Checks to see if IP is valid
-        if (ipParts.size != 4) { return false }
-        if (!ipParts.all { it.toIntOrNull() in 0..255 }) { return false }
+        if (ip.count{it == '.'} == 3) { // If the given value is actually an ip
+            // Extract the various parts of the given address
+            val parts = ip.split(":", limit=2)
+            if (parts.size != 2) { return false }
+            val ipParts = parts[0].split(".")
+            val port = parts[1]
 
-        // Checks to see if port is valid
-        if (port.toIntOrNull() !in 0..65535) { return false }
+            // Checks to see if IP is valid
+            if (ipParts.size != 4) { return false }
+            if (!ipParts.all { it.toIntOrNull() in 0..255 }) { return false }
+
+            // Checks to see if port is valid
+            if (port.toIntOrNull() !in 0..65535) { return false }
+        } else {
+            val parts = ip.split(":", limit=2)
+            val urlParts = parts[0].split(".")
+
+            if (!urlParts.all { it.all { Character.isLetterOrDigit(it) || it.equals('-') || it.equals('_')} }) { return false }
+        }
 
         return true
     }
