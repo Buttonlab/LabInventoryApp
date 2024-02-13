@@ -3,8 +3,10 @@ package com.example.multipagetesting2
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.uk.tsl.rfid.asciiprotocol.AsciiCommander
+import com.uk.tsl.rfid.asciiprotocol.commands.BarcodeCommand
 import com.uk.tsl.rfid.asciiprotocol.commands.FactoryDefaultsCommand
 import com.uk.tsl.rfid.asciiprotocol.commands.FindTagCommand
 import com.uk.tsl.rfid.asciiprotocol.commands.InventoryCommand
@@ -19,6 +21,7 @@ import com.uk.tsl.rfid.asciiprotocol.enumerations.TriState
 import com.uk.tsl.rfid.asciiprotocol.responders.ISignalStrengthCountDelegate
 import com.uk.tsl.rfid.asciiprotocol.responders.ISignalStrengthReceivedDelegate
 import com.uk.tsl.rfid.asciiprotocol.responders.ISwitchStateReceivedDelegate
+import com.uk.tsl.rfid.asciiprotocol.responders.IBarcodeReceivedDelegate
 import com.uk.tsl.rfid.asciiprotocol.responders.SignalStrengthResponder
 import com.uk.tsl.rfid.asciiprotocol.responders.SwitchResponder
 import java.util.Date
@@ -42,6 +45,11 @@ class TagFinderViewModel(): ViewModel() {
 
     // If the reader can support the .ft (find tag) command
     private var mUseFindTagCommand = false
+
+    private var mBarcodeResponder: BarcodeCommand
+    private var isEnabled: Boolean = false
+    // Making the LiveData object used to send the tags epc to the ui
+    val epcNotification: MutableLiveData<String?> = MutableLiveData()
 
     // The target tag to look for
     @Volatile
@@ -88,6 +96,12 @@ class TagFinderViewModel(): ViewModel() {
                 }
             }
         }
+
+        mBarcodeResponder = BarcodeCommand()
+        mBarcodeResponder.setCaptureNonLibraryResponses(true)
+        mBarcodeResponder.useEscapeCharacter = TriState.YES
+        mBarcodeResponder.barcodeReceivedDelegate =
+            IBarcodeReceivedDelegate { barcode -> sendEpcNotification(barcode) }
     }
 
 
@@ -131,26 +145,21 @@ class TagFinderViewModel(): ViewModel() {
         mEnabled = state
         if (oldState != mEnabled && getCommander() != null) {
             if (mEnabled) {
-                Log.d("TagFinderViewModel", "Adding responders")
                 // Listen for transponders and triggers
                 if (!getCommander()!!.hasSynchronousResponder) {
                     getCommander()!!.addSynchronousResponder()
-                    Log.d("TagFinderViewModel", "Adding sync responder")
-                } else {
-                    Log.d("TagFinderViewModel", "Already has sync responder")
                 }
                 getCommander()!!.addResponder(mSignalStrengthResponder)
                 getCommander()!!.addResponder(mSwitchResponder)
+                getCommander()!!.addResponder(mBarcodeResponder)
             } else {
                 // Stop listening for transponders and triggers
                 if (getCommander()!!.hasSynchronousResponder) {
                     getCommander()!!.removeSynchronousResponder()
-                    Log.d("TagFinderViewModel", "Removing sync responder")
-                } else {
-                    Log.d("TagFinderViewModel", "Had no sync responder")
                 }
                 getCommander()!!.removeResponder(mSwitchResponder)
                 getCommander()!!.removeResponder(mSignalStrengthResponder)
+                getCommander()!!.removeResponder(mBarcodeResponder)
             }
         }
     }
@@ -349,108 +358,8 @@ class TagFinderViewModel(): ViewModel() {
         }
     }
 
-    // Function to convert the given hex value to ascii (and leave the unique as hex)
-    fun hexToTagAscii(hex: String): String {
-        Log.d("TagFinderViewModel", "The given hex: $hex")
-        if (hex.startsWith("http")) {
-            return hex.split("/").last()
-        }
-        try {
-            var hexIn = hex
-            if (hex.startsWith("68747470")) {
-                val tempConversion = hexToAscii(hex)
-                val lastSlashIndex = tempConversion.lastIndexOf('/') + 1
-                if (lastSlashIndex != -1) {
-                    hexIn = hex.substring(lastSlashIndex * 2)
-                }
-            }
-
-            val type = hexToAscii(hexIn.substring(0,2))
-            if (type == "1" || type == "3") {
-                val toConvert = hexIn.dropLast(4)
-                val unique = hexIn.takeLast(4)
-                return hexToAscii(toConvert) +
-                        unique
-            } else if (type == "2" || type == "4") {
-                val toConvert1 = hexIn.substring(0,12)
-                val clone = hexIn.substring(12, 14)
-                val passage = hexIn.substring(14, 16)
-                val toConvert2 = hexIn.substring(16, 20)
-                val unique = hexIn.substring(20)
-                return hexToAscii(toConvert1) +
-                        clone +
-                        passage +
-                        hexToAscii(toConvert2) +
-                        unique
-            } else {
-                return ""
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            val hexPattern = "^[0-9a-fA-F]+$".toRegex()
-            if (!hexPattern.matches(hex)) { // This will just return the existing given value if it contains non-hex characters
-                return hex
-            }
-            return ""
-        }
-
-    }
-
-    // Function to convert the given ascii value to hex assuming its in tag format
-    fun tagAsciiToHex(asciiStr: String): String {
-        Log.d("TagFinderViewModel", "ascii to hex: $asciiStr")
-        try {
-            val type = asciiStr.first().toString()
-            if (type == "1" || type == "3") {
-                val toConvert = asciiStr.dropLast(4)
-                val unique = asciiStr.takeLast(4)
-                return asciiToHex(toConvert) +
-                        unique
-            } else if (type == "2" || type == "4") {
-                val toConvert1 = asciiStr.substring(0, 6)
-                val clone = asciiStr.substring(6, 8)
-                val passage = asciiStr.substring(8, 10)
-                val toConvert2 = asciiStr.substring(10, 12)
-                val unique = asciiStr.substring(12)
-                return asciiToHex(toConvert1) +
-                        clone +
-                        passage +
-                        asciiToHex(toConvert2) +
-                        unique
-            } else {
-                return ""
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return ""
-        }
-
-    }
-
-    // Function to convert a given ascii string to hex
-    fun asciiToHex(asciiStr: String): String {
-        return buildString {
-            for (char in asciiStr) {
-                append(char.code.toString(16))
-            }
-        }
-    }
-
-
-    // Function to convert the given hex value to ascii
-    fun hexToAscii(hex: String): String {
-        return buildString {
-            for (i in hex.indices step 2) {
-                val str = hex.substring(i, i + 2)
-                val value = str.toInt(16)
-                if (value in 1..127) {
-                    append(str.toInt(16).toChar())
-                } else {
-                    append('?')
-                }
-
-            }
-        }
+    private fun sendEpcNotification(message: String) {
+        epcNotification.postValue(message)
     }
 
 }

@@ -109,7 +109,7 @@ class InventoryFragment : Fragment() {
 
                         val splitMsg = message.split(":", limit = 2)
                         if (!(splitMsg[1].startsWith("21") && splitMsg[1].endsWith("21"))) { // Don't display location tags and stop if empty
-                            val newMsg = viewModel.hexToTagAscii(splitMsg[1])
+                            val newMsg = hexToTagAscii(splitMsg[1])
                             if (newMsg.all { (it.isLetterOrDigit() || it.isWhitespace()) } && newMsg.isNotEmpty()) { // Don't display a tag if it does not contain valid characters
 
                                 var inDB = true
@@ -228,7 +228,7 @@ class InventoryFragment : Fragment() {
                     tagList.forEach {tag -> formatList.add(tag.split(":", limit=2)[1])}
                     val request = ActionRequest(
                         target = formatList,
-                        checksum = viewModel.asciiToCrc32(formatList),
+                        checksum = asciiToCrc32(formatList),
                         actionName = "Inventory",
                         number = null,
                         fields = mutableMapOf("location" to location!!)

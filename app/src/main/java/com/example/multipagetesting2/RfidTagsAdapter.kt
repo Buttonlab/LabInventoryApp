@@ -9,9 +9,9 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
-val substitutions = DataRepository.substitutions
-
 class RfidTagsAdapter(private val tags: ArrayList<String>) : RecyclerView.Adapter<RfidTagsAdapter.tagViewHolder>() {
+
+    val substitutions = DataRepository.substitutions
 
     inner class tagViewHolder(view: View): RecyclerView.ViewHolder(view) {
         var tag: TextView = view.findViewById(R.id.tagItem) as TextView
@@ -55,7 +55,7 @@ class RfidTagsAdapter(private val tags: ArrayList<String>) : RecyclerView.Adapte
                 val clone = tagText.substring(6,8).toInt(16)
                 val passage = tagText.substring(8,10).toInt(16)
                 val number = tagText.substring(11,12).toInt(36)
-                textVisible = "$cellType    $genemod   $gene1   $gene2   \n$resistance   Clone#$clone   Psg#${passage}   #${number}"
+                textVisible = "$cellType    $genemod   $gene1   $gene2\n$resistance   Clone#$clone   Psg#${passage}   #${number}"
             }catch (e: Exception) {
                 textVisible = "$tagText   ERROR!"
             }

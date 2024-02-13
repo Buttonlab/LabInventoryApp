@@ -132,6 +132,10 @@ object DataRepository {
         return apiService.getCellById(cellID)
     }
 
+    suspend fun getOldestByField(cellID: String, field: String): Response<OldestResponse> {
+        return apiService.getOldestByField(cellID, field)
+    }
+
     suspend fun killCellByID(cellID: String, checksum: String): Response<BasicResponse> {
         return apiService.killCellByID(cellID, checksum)
     }

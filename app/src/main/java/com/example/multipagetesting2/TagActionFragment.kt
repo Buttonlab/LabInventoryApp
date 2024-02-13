@@ -182,7 +182,7 @@ class TagActionFragment : Fragment() {
 
                         var newMsg = ""
                         try { // Convert to ascii if possible/necessary
-                            newMsg = if (actions?.acts?.containsKey(splitMsg[1]) == true) { splitMsg[1] } else { viewModel.hexToTagAscii(splitMsg[1]) }
+                            newMsg = if (actions?.acts?.containsKey(splitMsg[1]) == true) { splitMsg[1] } else { hexToTagAscii(splitMsg[1]) }
                         } catch (e: Exception) {
                             newMsg = splitMsg[1]
                         }
@@ -217,7 +217,7 @@ class TagActionFragment : Fragment() {
 
                             val splitMsg = message.split(":", limit = 2)
                             if (!(splitMsg[1].startsWith("21") && splitMsg[1].endsWith("21"))) { // Don't display location tags and stop if empty
-                                val newMsg = viewModel.hexToTagAscii(splitMsg[1])
+                                val newMsg = hexToTagAscii(splitMsg[1])
                                 if (newMsg.all { (it.isLetterOrDigit() || it.isWhitespace()) } && newMsg.isNotEmpty()) { // Don't display a tag if it does not contain valid characters
 
                                     var inDB = true
@@ -502,7 +502,7 @@ class TagActionFragment : Fragment() {
                     // Making the request json body object
                     val request = ActionRequest(
                         target = formatList,
-                        checksum = viewModel.asciiToCrc32(formatList),
+                        checksum = asciiToCrc32(formatList),
                         actionName = chosenAction!!,
                         number = number,
                         fields = finalFields

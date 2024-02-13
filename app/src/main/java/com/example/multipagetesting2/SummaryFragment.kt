@@ -252,9 +252,9 @@ class SummaryFragment : Fragment() {
                 if (message.startsWith("BC")) {
                     val bc = message.split(":", limit=2)[1]
                     // ASSUME: barcode will always be hex same as EPC code
-                    tagSelect.setText(viewModel.hexToTagAscii(bc))
+                    tagSelect.setText(hexToTagAscii(bc))
 
-                    Log.d("SummaryFragment", "Calling for info for the tag $bc (converted to ${viewModel.hexToTagAscii(bc)}")
+                    Log.d("SummaryFragment", "Calling for info for the tag $bc (converted to ${hexToTagAscii(bc)}")
 
                 }
             }
@@ -509,14 +509,14 @@ class SummaryFragment : Fragment() {
             val text = s.toString()
             if (text.length == 14 || text.length == 16) {
                 resetUI()
-                tagHex.setText(viewModel.tagAsciiToHex(text))
+                tagHex.setText(tagAsciiToHex(text))
                 tagAscii.setText(text)
                 getCell(text)
             } else if (text.length == 24) {
                 resetUI()
                 tagHex.setText(text)
-                tagAscii.setText(viewModel.hexToTagAscii(text))
-                getCell(viewModel.hexToTagAscii(text))
+                tagAscii.setText(hexToTagAscii(text))
+                getCell(hexToTagAscii(text))
             } else {
                 Log.e("SummaryFragment", "Was given an invalid cellID! $text")
             }

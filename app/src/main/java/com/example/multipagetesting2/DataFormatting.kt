@@ -34,6 +34,11 @@ data class CellsResponse(
     val cells: List<String>
 )
 
+data class OldestResponse(
+    val oldest: String?,
+    val error: String?
+)
+
 data class CellItem(
     val id: String?,
     val type: String?,

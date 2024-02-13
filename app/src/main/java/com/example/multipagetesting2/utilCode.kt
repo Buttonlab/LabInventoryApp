@@ -154,28 +154,39 @@ fun tagAsciiToHex(asciiStr: String): String {
 
 // Function to convert a given ascii string to hex
 fun asciiToHex(asciiStr: String): String {
-    return buildString {
-        for (char in asciiStr) {
-            append(char.code.toString(16))
+    try {
+        return buildString {
+            for (char in asciiStr) {
+                append(char.code.toString(16))
+            }
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        return ""
     }
 }
 
 
 // Function to convert the given hex value to ascii
 fun hexToAscii(hex: String): String {
-    return buildString {
-        for (i in hex.indices step 2) {
-            val str = hex.substring(i, i + 2)
-            val value = str.toInt(16)
-            if (value in 1..127) {
-                append(str.toInt(16).toChar())
-            } else {
-                append('?')
-            }
+    try {
+        return buildString {
+            for (i in hex.indices step 2) {
+                val str = hex.substring(i, i + 2)
+                val value = str.toInt(16)
+                if (value in 1..127) {
+                    append(str.toInt(16).toChar())
+                } else {
+                    append('?')
+                }
 
+            }
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        return ""
     }
+
 }
 
 // Function to convert the tag hex to the crc32 password

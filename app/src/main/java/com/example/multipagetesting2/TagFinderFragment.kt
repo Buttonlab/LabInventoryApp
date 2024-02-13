@@ -18,8 +18,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.multipagetesting2.databinding.FragmentTagFinderBinding
 import com.uk.tsl.rfid.asciiprotocol.AsciiCommander
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * A simple [Fragment] subclass as the second destination in the navigation.
@@ -115,6 +117,9 @@ class TagFinderFragment : Fragment() {
     // Storing the substitutions from the API
     val substitutions = DataRepository.substitutions
 
+    // Storing the map of processed and raw tags
+    val epcListMap = mutableMapOf<String, String>()
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
@@ -148,8 +153,7 @@ class TagFinderFragment : Fragment() {
         // Setup for the epc text text field and dropdown
         mTargetTagEditText = binding.targetEPC
         mTargetTagEditText.addTextChangedListener(mTargetTagEditTextChangedListener)
-        mTargetTagEditText.onFocusChangeListener = mTargetTagFocusChangedListener
-        mTargetTagEditText.dropDownHeight = (40 * displayDensity).toInt() * 10 // 40 is the height of the dropdown element in dp, 10 is the num of them to show
+        mTargetTagEditText.dropDownHeight = (40 * displayDensity).toInt() * 10
         mTargetTagClear = binding.targetClear
         mTargetTagClear.setOnClickListener { mTargetTagEditText.text.clear() }
         mTargetTagDropdown = binding.epcDropdown
@@ -243,6 +247,19 @@ class TagFinderFragment : Fragment() {
         resistanceDropdown.setOnClickListener { resistanceFilter.showDropDown() }
 
 
+        // Setting the responder for the barcode
+        viewModel.epcNotification.observe(viewLifecycleOwner) {message ->
+            if (message != null &&
+                !(message.startsWith("21") && message.endsWith("21")) &&
+                hexToTagAscii(message).all { (it.isLetterOrDigit() || it.isWhitespace()) } &&
+                hexToTagAscii(message).isNotEmpty()) {
+
+                val rawEPC = hexToTagAscii(message)
+                epcListMap[processEpc(rawEPC)] = rawEPC
+                mTargetTagEditText.setText(processEpc(rawEPC))
+            }
+        }
+
         // Setting the responders for the signal strength values
         viewModel.setRawSignalDelegate { level ->
             var percentage = if (level != null) asPercentage(level) else 0
@@ -281,6 +298,8 @@ class TagFinderFragment : Fragment() {
         super.onPause()
         viewModel.setEnabled(false)
         viewModel.cleanup()
+        viewModel.epcNotification.removeObservers(viewLifecycleOwner)
+        viewModel.epcNotification.postValue(null)
         mTargetTagEditText.removeTextChangedListener(mTargetTagEditTextChangedListener)
         soundPool?.release()
         soundPool = null
@@ -297,22 +316,31 @@ class TagFinderFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
             // Runs this when the user stops changing the text field
             val text = s.toString()
-            if (text.length in intArrayOf(14, 16, 24)) { // If the given epc code is a valid length
+            if (epcListMap.containsKey(text)) { // If the given epc code is a valid length
+                var rawEpc = epcListMap[text]
+                if (rawEpc!!.startsWith("1") || rawEpc!!.startsWith("3")) {
+                    lifecycleScope.launch {
+                        try {
+                            // Getting the original owner from the API
+                            val response = DataRepository.getOldestByField(rawEpc!!, "owner")
+                            if (response.isSuccessful && response.body() != null) {
+                                val oldestOwner = response.body()!!.oldest
+                                rawEpc = rawEpc!!.substring(0, 6) + oldestOwner + rawEpc!!.substring(7)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+
+                        viewModel.setTargetTagEpc(rawEpc)
+                        viewModel.updateTarget()
+                    }
+                }
+            } else if (intArrayOf(14, 16).contains(text.length)) {
                 viewModel.setTargetTagEpc(text)
                 viewModel.updateTarget()
             }
         }
 
-    }
-
-    // Runs when the user leaves the target text edit box
-    private val mTargetTagFocusChangedListener = View.OnFocusChangeListener { view, hasFocus ->
-        if (!hasFocus) {
-            if (mTargetTagEditText.text.toString().length in intArrayOf(14, 16, 24)) { // If the given epc code is a valid length
-                viewModel.setTargetTagEpc(mTargetTagEditText.text.toString())
-                viewModel.updateTarget()
-            }
-        }
     }
 
     // Runs this if the user changes the filter text in any way
@@ -323,6 +351,45 @@ class TagFinderFragment : Fragment() {
             // Runs this when the user stops changing the text field
             updateFilters()
         }
+    }
+
+    // Used to process a tag from the raw epc code into something more human readable
+    private fun processEpc(tagText: String): String {
+        var textVisible = tagText
+        if (tagText.first().equals('1') || tagText.first().equals('3')) {
+            try {
+
+                val genotype = substitutions?.subs?.get("genotype")?.get(tagText.substring(1,2)) ?: tagText.substring(1,2)
+                val distNum = tagText.substring(2,4).toInt(36)
+                val year = tagText.substring(4,6)
+                val owner = substitutions?.subs?.get("owner")?.get(tagText.substring(6,7)) ?: tagText.substring(6,7)
+                val passage = tagText.substring(7,8).toInt(36)
+                val surface = substitutions?.subs?.get("surface")?.get(tagText.substring(8,9)) ?: tagText.substring(8,9)
+                val number = tagText.substring(9,10).toInt(36)
+
+                textVisible = "$genotype$distNum$year   $owner\nOn:$surface   Psg#$passage   #$number"
+            } catch (e: Exception) {
+                textVisible = "$tagText   ERROR!"
+            }
+
+        } else if (tagText.first().equals('2') || tagText.first().equals('4')) {
+            try {
+                val cellType = substitutions?.subs?.get("cellType")?.get(tagText.substring(1,2)) ?: tagText.substring(1,2)
+                val genemod = substitutions?.subs?.get("genemod")?.get(tagText.substring(2,3)) ?: tagText.substring(2,3)
+                val gene1 = substitutions?.subs?.get("gene1")?.get(tagText.substring(3,4)) ?: tagText.substring(3,4)
+                val gene2 = substitutions?.subs?.get("gene2")?.get(tagText.substring(4,5)) ?: tagText.substring(4,5)
+                val resistance = substitutions?.subs?.get("resistance")?.get(tagText.substring(5,6)) ?: tagText.substring(5,6)
+                val clone = tagText.substring(6,8).toInt(16)
+                val passage = tagText.substring(8,10).toInt(16)
+                val number = tagText.substring(11,12).toInt(36)
+                textVisible = "$cellType    $genemod   $gene1   $gene2\n$resistance   Clone#$clone   Psg#${passage}   #${number}"
+            }catch (e: Exception) {
+                textVisible = "$tagText   ERROR!"
+            }
+
+        }
+
+        return textVisible
     }
 
     // Takes a db RSSI reading and converts it to percentage
@@ -457,10 +524,14 @@ class TagFinderFragment : Fragment() {
 
                         // Updating the AutoCompleteTextViews dropdown boxes
                         filteredList = ArrayList(cellsList)
+                        epcListMap.clear()
+                        filteredList.forEach { epc ->
+                            epcListMap[processEpc(epc)] = epc
+                        }
                         targetAdapter = ArrayAdapter(
                             requireContext(),
                             R.layout.dropdown_item,
-                            filteredList)
+                            epcListMap.keys.toList())
                         mTargetTagEditText.setAdapter(targetAdapter)
                         targetAdapter!!.notifyDataSetChanged()
 
@@ -525,6 +596,9 @@ class TagFinderFragment : Fragment() {
     // Function to update the options to select in the main tag select based off the filters
     private fun updateFilters() {
         if (targetAdapter != null) {
+            // Display density for finding the required height of an item
+            val displayDensity = resources.displayMetrics.density
+
             if (typeFilter.text.toString() == "Primary") {
                 cellTypeLayout.visibility = View.GONE
                 genemodLayout.visibility = View.GONE
@@ -563,9 +637,11 @@ class TagFinderFragment : Fragment() {
 
                     if (typeMatch && genotypeMatch && distNumMatch && surfaceMatch) {
                         newList.add(item)
-                        targetAdapter!!.add(item)
+                        targetAdapter!!.add(processEpc(item))
                     }
                 }
+
+                mTargetTagEditText.dropDownHeight = (60 * displayDensity).toInt() * minOf(newList.size, 7)
 
                 // Updating the list of tags in the dropdown box
                 //targetAdapter!!.clear()
@@ -609,9 +685,11 @@ class TagFinderFragment : Fragment() {
 
                     if (typeMatch && cellTypeMatch && genemodMatch && resistanceMatch) {
                         newList.add(item)
-                        targetAdapter!!.add(item)
+                        targetAdapter!!.add(processEpc(item))
                     }
                 }
+
+                mTargetTagEditText.dropDownHeight = (60 * displayDensity).toInt() * minOf(newList.size, 7)
 
                 // Updating the list of tags in the dropdown box
                 targetAdapter!!.notifyDataSetChanged()

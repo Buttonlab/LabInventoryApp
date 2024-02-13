@@ -29,6 +29,9 @@ interface ApiService {
     @GET("api/live/kill/{cellID}/{checksum}")
     suspend fun killCellByID(@Path("cellID") cellID: String, @Path("checksum") checksum: String): Response<BasicResponse>
 
+    @GET("api/live/{cellID}/oldest/{field}")
+    suspend fun getOldestByField(@Path("cellID") cellID: String, @Path("field") field: String): Response<OldestResponse >
+
     @POST("/api/live/actions/apply")
     suspend fun applyActions(@Body requestBody: ActionRequest): Response<BasicResponse>
 }
