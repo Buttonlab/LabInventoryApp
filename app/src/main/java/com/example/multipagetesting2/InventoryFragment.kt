@@ -116,7 +116,7 @@ class InventoryFragment : Fragment() {
                                 if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
                                     inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
                                 }
-                                if (newMsg.any { !it.isLetterOrDigit() || !it.isWhitespace() } && inDB && (newMsg.length == 14 || newMsg.length == 16)) {
+                                if (newMsg.any { !it.isLetterOrDigit() || !it.isWhitespace() } && inDB && intArrayOf(14, 16).contains(newMsg.length)) {
                                     tagList.add("${splitMsg[0]}:$newMsg")
                                     tagCounter.setText("${tagList.size}")
                                     tagAdapter.updateData(tagList)

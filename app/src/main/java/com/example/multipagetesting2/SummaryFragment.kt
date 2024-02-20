@@ -144,6 +144,10 @@ class SummaryFragment : Fragment() {
         viewModel.setEnabled(false)
         viewModel.resetDevice()
         tagSelect.removeTextChangedListener(mTargetTextChangedListener)
+        viewModel.epcNotification.removeObservers(viewLifecycleOwner)
+        viewModel.epcNotification.postValue(null)
+        viewModel.epcRssiNotification.removeObservers(viewLifecycleOwner)
+        viewModel.epcRssiNotification.postValue(null)
     }
 
     override fun onResume() {
@@ -257,6 +261,28 @@ class SummaryFragment : Fragment() {
                     Log.d("SummaryFragment", "Calling for info for the tag $bc (converted to ${hexToTagAscii(bc)}")
 
                 }
+            }
+        }
+
+        // This runs when the user scans with the RFID mode
+        viewModel.epcRssiNotification.observe(viewLifecycleOwner) { message ->
+            if (message != null) {
+                val mList = message.split(":", limit=2)
+                val epc = mList[0]
+                val rssi = mList[1].toIntOrNull()
+
+                val isLocTag = epc.startsWith("21") && epc.endsWith("31")
+                val isValidTag = arrayListOf("31", "32", "33", "34", "35", "36").contains(epc.substring(0,2))
+                if (!isLocTag && isValidTag && rssi != null) {
+                    epcRssiMap[epc] = rssi
+
+                    val closestTag = epcRssiMap.maxByOrNull { it.value }?.key
+                    if (!target.equals(closestTag)) {
+                        target = closestTag.toString()
+                        tagSelect.setText(hexToTagAscii(closestTag.toString()))
+                    }
+                }
+
             }
         }
 
@@ -507,7 +533,7 @@ class SummaryFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
             // Runs this when the user stops changing the text field
             val text = s.toString()
-            if (text.length == 14 || text.length == 16) {
+            if (intArrayOf(14, 16).contains(text.length)) {
                 resetUI()
                 tagHex.setText(tagAsciiToHex(text))
                 tagAscii.setText(text)

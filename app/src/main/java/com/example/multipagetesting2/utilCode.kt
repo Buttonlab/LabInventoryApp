@@ -75,8 +75,12 @@ fun isQueueEmpty(context: Context): Boolean {
 }
 
 // Function to convert the given hex value to ascii (and leave the unique as hex)
-fun hexToTagAscii(hex: String): String {
+fun hexToTagAscii(hex: String?): String {
     Log.d("KillViewModel", "The given hex: $hex")
+    if (hex.isNullOrEmpty()) {
+        return ""
+    }
+
     if (hex.startsWith("http")) {
         return hex.split("/").last()
     }

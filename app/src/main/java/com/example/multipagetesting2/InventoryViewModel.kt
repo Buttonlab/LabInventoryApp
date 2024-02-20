@@ -84,7 +84,7 @@ class InventoryViewModel(): ViewModel() {
         mInventoryResponder.setCaptureNonLibraryResponses(true)
 
         mInventoryResponder.transponderReceivedDelegate = ITransponderReceivedDelegate { transponder, moreAvailable ->
-            if (sendRSSI && transponder.epc.startsWith("21") && transponder.epc.endsWith("21")) {
+            if (sendRSSI) {
                 sendEpcRssiNotification("${transponder.epc}:${transponder.rssi}")
             }
 

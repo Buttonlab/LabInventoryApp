@@ -201,7 +201,7 @@ class TagActionFragment : Fragment() {
                                     if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
                                         inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
                                     }
-                                    if ((newMsg.length == 14 || newMsg.length == 16) && inDB) {
+                                    if ((intArrayOf(14, 16).contains(newMsg.length)) && inDB) {
                                         tagList.add("BC:$newMsg")
                                         tagCounter.setText("${tagList.size}")
                                         Log.d("TagActionFragment", "Tag count: ${tagList.size}")
@@ -225,7 +225,7 @@ class TagActionFragment : Fragment() {
                                     if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
                                         inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
                                     }
-                                    if ((newMsg.length == 14 || newMsg.length == 16) && inDB) {
+                                    if (intArrayOf(14, 16).contains(newMsg.length) && inDB) {
                                         tagList.add("EPC:$newMsg")
                                         tagCounter.setText("${tagList.size}")
                                         Log.d("TagActionFragment", "Tag count: ${tagList.size}")

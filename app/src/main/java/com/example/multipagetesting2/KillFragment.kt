@@ -188,7 +188,7 @@ class KillFragment : Fragment() {
                     tagHex.setText(message)
                     tagAscii.setText(viewModel.hexToTagAscii(message))
                     cellID = viewModel.hexToTagAscii(message)
-                } else if (message.length == 14 || message.length == 16) {
+                } else if (intArrayOf(14, 16).contains(message.length)) {
                     tagHex.setText(viewModel.tagAsciiToHex(message))
                     tagAscii.setText(message)
                     cellID = message
