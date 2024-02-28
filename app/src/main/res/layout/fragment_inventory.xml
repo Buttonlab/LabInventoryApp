@@ -65,7 +65,7 @@
                 android:id="@+id/tagCount"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight=".7"
+                android:layout_weight="1"
                 android:gravity="center"
                 android:text="---"
                 app:autoSizeTextType="uniform"
@@ -77,7 +77,7 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight=".7"
+                android:layout_weight=".5"
                 android:orientation="vertical"
                 android:weightSum="2">
 

@@ -231,6 +231,50 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/otherTypeBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Other Type: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagOtherType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_other_type_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/otherGenemodBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Other Genemod: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagOtherGenemod"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_other_genemod_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/gene1Box"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -292,6 +336,50 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/tag_resistance_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/primaryResistanceBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Primary Resistance: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagPrimaryResistance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_primary_resistance"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/vectorResistanceBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vector Resistance: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagVectorResistance"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_vector_resistance"
                         android:textAlignment="center"
                         android:textSize="20sp" />
                 </LinearLayout>
@@ -431,6 +519,29 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/nameBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone"
+                    >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Name: "
+                        android:layout_gravity="center_horizontal"
+                        android:textSize="26sp"/>
+                    <TextView
+                        android:id="@+id/tagName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_name_value"
+                        android:gravity="left"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/statusBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -470,6 +581,28 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/tag_location_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/specificLocationBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Specific Location: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagSpecificLocation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_specific_location_value"
                         android:textAlignment="center"
                         android:textSize="20sp" />
                 </LinearLayout>
@@ -602,6 +735,94 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/tag_created_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/freezeBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Frozen on: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagFreeze"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_frozen_on_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/strainBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Strain: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagStrain"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_strain_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/parentalPlasmidBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Parental Plasmid: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagParentalPlasmid"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_parental_plasmid_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/primerBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Primer: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagPrimer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_primer_value"
                         android:textAlignment="center"
                         android:textSize="20sp" />
                 </LinearLayout>
@@ -760,7 +981,6 @@
                         android:gravity="left"
                         android:textSize="20sp" />
                 </LinearLayout>
-
 
 
                 <TextView

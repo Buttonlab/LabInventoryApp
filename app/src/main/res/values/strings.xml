@@ -55,4 +55,14 @@
     <string name="request_time">Request Time: </string>
     <string name="result">Result:</string>
     <string name="tag_parent_cells_value">---tag parent cells value---</string>
+    <string name="tag_name_value">---tag name value---</string>
+    <string name="tag_vector_resistance">---tag vector resistance---</string>
+    <string name="tag_primary_resistance">---tag primary resistance---</string>
+    <string name="tag_specific_location_value">---tag specific location value---</string>
+    <string name="tag_frozen_on_value">---tag frozen on value---</string>
+    <string name="tag_primer_value">---tag primer value---</string>
+    <string name="tag_parental_plasmid_value">---tag parental plasmid value---</string>
+    <string name="tag_strain_value">---tag strain value---</string>
+    <string name="tag_other_genemod_value">---tag other genemod value---</string>
+    <string name="tag_other_type_value">--tag other type value---</string>
 </resources>

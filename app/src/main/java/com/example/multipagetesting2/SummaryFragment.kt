@@ -73,12 +73,20 @@ class SummaryFragment : Fragment() {
     private lateinit var cellTypeBox: LinearLayout
     private lateinit var tagGenemod: TextView
     private lateinit var genemodBox: LinearLayout
+    private lateinit var tagOtherType: TextView
+    private lateinit var otherTypeBox: LinearLayout
+    private lateinit var tagOtherGenemod: TextView
+    private lateinit var otherGenemodBox: LinearLayout
     private lateinit var tagGene1: TextView
     private lateinit var gene1Box: LinearLayout
     private lateinit var tagGene2: TextView
     private lateinit var gene2Box: LinearLayout
     private lateinit var tagResistance: TextView
     private lateinit var resistanceBox: LinearLayout
+    private lateinit var tagPrimaryResistance: TextView
+    private lateinit var primaryResistanceBox: LinearLayout
+    private lateinit var tagVectorResistance: TextView
+    private lateinit var vectorResistanceBox: LinearLayout
     private lateinit var tagClone: TextView
     private lateinit var cloneBox: LinearLayout
     private lateinit var tagYear: TextView
@@ -91,10 +99,14 @@ class SummaryFragment : Fragment() {
     private lateinit var surfaceBox: LinearLayout
     private lateinit var tagNumber: TextView
     private lateinit var numberBox: LinearLayout
+    private lateinit var tagName: TextView
+    private lateinit var nameBox: LinearLayout
     private lateinit var tagStatus: TextView
     private lateinit var statusBox: LinearLayout
     private lateinit var tagLocation: TextView
     private lateinit var locationBox: LinearLayout
+    private lateinit var tagSpecificLocation: TextView
+    private lateinit var specificLocationBox: LinearLayout
     private lateinit var tagSupportQuantity: TextView
     private lateinit var supportQuantityBox: LinearLayout
     private lateinit var tagMedia: TextView
@@ -107,6 +119,14 @@ class SummaryFragment : Fragment() {
     private lateinit var wellCountBox: LinearLayout
     private lateinit var tagCreated: TextView
     private lateinit var createdOnBox: LinearLayout
+    private lateinit var tagFrozen: TextView
+    private lateinit var frozenBox: LinearLayout
+    private lateinit var tagStrain: TextView
+    private lateinit var strainBox: LinearLayout
+    private lateinit var tagParentalPlasmid: TextView
+    private lateinit var parentalPlasmidBox: LinearLayout
+    private lateinit var tagPrimer: TextView
+    private lateinit var primerBox: LinearLayout
     private lateinit var tagLastFeed: TextView
     private lateinit var lastFeedBox: LinearLayout
     private lateinit var tagLastWash: TextView
@@ -176,12 +196,20 @@ class SummaryFragment : Fragment() {
         cellTypeBox = binding.cellTypeBox
         tagGenemod = binding.tagGenemod
         genemodBox = binding.genemodBox
+        tagOtherType = binding.tagOtherType
+        otherTypeBox = binding.otherTypeBox
+        tagOtherGenemod = binding.tagOtherGenemod
+        otherGenemodBox = binding.otherGenemodBox
         tagGene1 = binding.tagGene1
         gene1Box = binding.gene1Box
         tagGene2 = binding.tagGene2
         gene2Box = binding.gene2Box
         tagResistance = binding.tagResistance
         resistanceBox = binding.resistanceBox
+        tagPrimaryResistance = binding.tagPrimaryResistance
+        primaryResistanceBox = binding.primaryResistanceBox
+        tagVectorResistance = binding.tagVectorResistance
+        vectorResistanceBox = binding.vectorResistanceBox
         tagClone = binding.tagClone
         cloneBox = binding.cloneBox
         tagYear = binding.tagYear
@@ -194,10 +222,14 @@ class SummaryFragment : Fragment() {
         surfaceBox = binding.surfaceBox
         tagNumber = binding.tagNumber
         numberBox = binding.numberBox
+        tagName = binding.tagName
+        nameBox = binding.nameBox
         tagStatus = binding.tagStatus
         statusBox = binding.statusBox
         tagLocation = binding.tagLocation
         locationBox = binding.locationBox
+        tagSpecificLocation = binding.tagSpecificLocation
+        specificLocationBox = binding.specificLocationBox
         tagSupportQuantity = binding.tagSupportQuantity
         supportQuantityBox = binding.supportQuantityBox
         tagMedia = binding.tagMedia
@@ -210,6 +242,14 @@ class SummaryFragment : Fragment() {
         wellCountBox = binding.wellCountBox
         tagCreated = binding.tagCreated
         createdOnBox = binding.createdOnBox
+        tagFrozen = binding.tagFreeze
+        frozenBox = binding.freezeBox
+        tagStrain = binding.tagStrain
+        strainBox = binding.strainBox
+        tagParentalPlasmid = binding.tagParentalPlasmid
+        parentalPlasmidBox = binding.parentalPlasmidBox
+        tagPrimer = binding.tagPrimer
+        primerBox = binding.primerBox
         tagLastFeed = binding.tagLastFeed
         lastFeedBox = binding.lastFeedBox
         tagLastWash = binding.tagLastWash
@@ -272,7 +312,7 @@ class SummaryFragment : Fragment() {
                 val rssi = mList[1].toIntOrNull()
 
                 val isLocTag = epc.startsWith("21") && epc.endsWith("31")
-                val isValidTag = arrayListOf("31", "32", "33", "34", "35", "36").contains(epc.substring(0,2))
+                val isValidTag = arrayListOf("31", "32", "33", "34", "35", "66").contains(epc.substring(0,2)) // These are the hex values any tags will start with
                 if (!isLocTag && isValidTag && rssi != null) {
                     epcRssiMap[epc] = rssi
 
@@ -326,12 +366,20 @@ class SummaryFragment : Fragment() {
         cellTypeBox.visibility = View.GONE
         tagGenemod.text = ContextCompat.getString(requireContext(), R.string.tag_genemod_value)
         genemodBox.visibility = View.GONE
+        tagOtherType.text = ContextCompat.getString(requireContext(), R.string.tag_other_type_value)
+        otherTypeBox.visibility = View.GONE
+        tagOtherGenemod.text = ContextCompat.getString(requireContext(), R.string.tag_other_genemod_value)
+        otherGenemodBox.visibility = View.GONE
         tagGene1.text = ContextCompat.getString(requireContext(), R.string.tag_gene1_value)
         gene1Box.visibility = View.GONE
         tagGene2.text = ContextCompat.getString(requireContext(), R.string.tag_gene2_value)
         gene2Box.visibility = View.GONE
         tagResistance.text = ContextCompat.getString(requireContext(), R.string.tag_resistance_value)
         resistanceBox.visibility = View.GONE
+        tagPrimaryResistance.text = ContextCompat.getString(requireContext(), R.string.tag_primary_resistance)
+        primaryResistanceBox.visibility = View.GONE
+        tagVectorResistance.text = ContextCompat.getString(requireContext(), R.string.tag_vector_resistance)
+        vectorResistanceBox.visibility = View.GONE
         tagClone.text = ContextCompat.getString(requireContext(), R.string.tag_clone_value)
         cloneBox.visibility = View.GONE
         tagYear.text = ContextCompat.getString(requireContext(), R.string.tag_year_value)
@@ -344,6 +392,8 @@ class SummaryFragment : Fragment() {
         surfaceBox.visibility = View.GONE
         tagNumber.text = ContextCompat.getString(requireContext(), R.string.tag_number_value_in_batch)
         numberBox.visibility = View.GONE
+        tagName.text = ContextCompat.getString(requireContext(), R.string.tag_name_value)
+        nameBox.visibility = View.GONE
         tagStatus.text = ContextCompat.getString(requireContext(), R.string.tag_status_value)
         statusBox.visibility = View.GONE
         tagLocation.text = ContextCompat.getString(requireContext(), R.string.tag_location_value)
@@ -360,6 +410,14 @@ class SummaryFragment : Fragment() {
         wellCountBox.visibility = View.GONE
         tagCreated.text = ContextCompat.getString(requireContext(), R.string.tag_created_value)
         createdOnBox.visibility = View.GONE
+        tagFrozen.text = ContextCompat.getString(requireContext(), R.string.tag_frozen_on_value)
+        frozenBox.visibility = View.GONE
+        tagStrain.text = ContextCompat.getString(requireContext(), R.string.tag_strain_value)
+        strainBox.visibility = View.GONE
+        tagParentalPlasmid.text = ContextCompat.getString(requireContext(), R.string.tag_parental_plasmid_value)
+        parentalPlasmidBox.visibility = View.GONE
+        tagPrimer.text = ContextCompat.getString(requireContext(), R.string.tag_primer_value)
+        primerBox.visibility = View.GONE
         tagLastFeed.text = ContextCompat.getString(requireContext(), R.string.tag_last_feeding_value)
         lastFeedBox.visibility = View.GONE
         tagLastWash.text = ContextCompat.getString(requireContext(), R.string.tag_last_washing_value)
@@ -381,7 +439,7 @@ class SummaryFragment : Fragment() {
     // Function that will handle the API call to get the cells from the live database
     private fun loadCells() {
         Log.d("SummaryFragment", "Load cells called")
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             for (i in 1..2) {
                 try {
                     Log.d("SummaryFragment", "Trying the get cells from api")
@@ -446,23 +504,33 @@ class SummaryFragment : Fragment() {
                 Triple(distNumBox, tagDistNum, "distNum"),
                 Triple(cellTypeBox, tagCellType, "cellType"),
                 Triple(genemodBox, tagGenemod, "genemod"),
+                Triple(otherTypeBox, tagOtherType, "otherType"),
+                Triple(otherGenemodBox, tagOtherGenemod, "otherGenemod"),
                 Triple(gene1Box, tagGene1, "gene1"),
                 Triple(gene2Box, tagGene2, "gene2"),
                 Triple(resistanceBox, tagResistance, "resistance"),
+                Triple(primaryResistanceBox, tagPrimaryResistance, "primaryResistance"),
+                Triple(vectorResistanceBox, tagVectorResistance, "vectorResistance"),
                 Triple(cloneBox, tagClone, "clone"),
                 Triple(yearBox, tagYear, "year"),
                 Triple(ownerBox, tagOwner, "owner"),
                 Triple(passageBox, tagPassage, "passage"),
                 Triple(surfaceBox, tagSurface, "surface"),
                 Triple(numberBox, tagNumber, "number"),
+                Triple(nameBox, tagName, "name"),
                 Triple(statusBox, tagStatus, "status"),
                 Triple(locationBox, tagLocation, "location"),
+                Triple(specificLocationBox, tagSpecificLocation, "specificLocation"),
                 Triple(supportQuantityBox, tagSupportQuantity, "supportQuantity"),
                 Triple(mediaBox, tagMedia, "media"),
                 Triple(mediaSupplementsBox, tagMediaSupplements, "mediaSupplements"),
                 Triple(antibioticsBox, tagAntibiotics, "antibiotics"),
                 Triple(wellCountBox, tagWellCount, "wellCount"),
                 Triple(createdOnBox, tagCreated, "creationDate"),
+                Triple(frozenBox, tagFrozen, "freezeDate"),
+                Triple(strainBox, tagStrain, "strain"),
+                Triple(parentalPlasmidBox, tagPrimaryResistance, "parentalPlasmid"),
+                Triple(primerBox, tagPrimer, "primer"),
                 Triple(lastFeedBox, tagLastFeed, "lastWash"),
                 Triple(lastWashBox, tagLastWash, "lastFeed"),
                 Triple(feedScheduleBox, tagFeedSchedule, "feedingSchedule"),
@@ -533,7 +601,7 @@ class SummaryFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
             // Runs this when the user stops changing the text field
             val text = s.toString()
-            if (intArrayOf(14, 16).contains(text.length)) {
+            if (isCorrectLen(text)) {
                 resetUI()
                 tagHex.setText(tagAsciiToHex(text))
                 tagAscii.setText(text)

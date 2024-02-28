@@ -30,7 +30,13 @@ interface ApiService {
     suspend fun killCellByID(@Path("cellID") cellID: String, @Path("checksum") checksum: String): Response<BasicResponse>
 
     @GET("api/live/{cellID}/oldest/{field}")
-    suspend fun getOldestByField(@Path("cellID") cellID: String, @Path("field") field: String): Response<OldestResponse >
+    suspend fun getOldestByField(@Path("cellID") cellID: String, @Path("field") field: String): Response<OldestResponse>
+
+    @GET("api/live/{cellID}/{field}")
+    suspend fun getCurrentByField(@Path("cellID") cellID: String, @Path("field") field: String): Response<CurrentResponse>
+
+    @GET("api/live/count/{field}/{value}")
+    suspend fun getCountByFieldValue(@Path("field") field: String, @Path("value") value: String): Response<CountResponse>
 
     @POST("/api/live/actions/apply")
     suspend fun applyActions(@Body requestBody: ActionRequest): Response<BasicResponse>

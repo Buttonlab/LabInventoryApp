@@ -136,6 +136,15 @@ object DataRepository {
         return apiService.getOldestByField(cellID, field)
     }
 
+    suspend fun getCurrentByField(cellID: String, field: String): Response<CurrentResponse> {
+        return apiService.getCurrentByField(cellID, field)
+    }
+
+
+    suspend fun getCountByFieldValue(field: String, value: String): Response<CountResponse> {
+        return apiService.getCountByFieldValue(field, value)
+    }
+
     suspend fun killCellByID(cellID: String, checksum: String): Response<BasicResponse> {
         return apiService.killCellByID(cellID, checksum)
     }

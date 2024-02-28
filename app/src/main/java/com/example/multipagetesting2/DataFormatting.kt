@@ -7,7 +7,6 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import com.google.gson.JsonSerializationContext
 import com.google.gson.JsonSerializer
-import java.lang.reflect.Array
 import java.lang.reflect.Type
 import java.time.LocalDateTime
 
@@ -39,6 +38,15 @@ data class OldestResponse(
     val error: String?
 )
 
+data class CurrentResponse(
+    val current: String?,
+    val error: String?
+)
+
+data class CountResponse(
+    val count: Int?
+)
+
 data class CellItem(
     val id: String?,
     val type: String?,
@@ -47,30 +55,40 @@ data class CellItem(
     val year: String?, // Only for Primary cells
     val owner: String?, // Only for Primary cells
     val cellType: String?, // Only for Immortal cells
-    val geneMod: String?, // Only for Immortal cells
+    val genemod: String?, // Only for Immortal cells
     val gene1: String?, // Only for Immortal cells
     val gene2: String?, // Only for Immortal cells
     val resistance: String?, // Only for Immortal cells
+    val otherType: String?, // Only for Frozen Other
+    val otherGenemod: String?, // Only for Frozen Other
+    val primaryResistance: String?, // Only for Frozen Other
+    val vectorResistance: String?, // Only for Frozen Other
     val clone: String?, // Only for Immortal cells
     val passage: String?, // Single char base36 for Primary, a 2 byte hex for Immortal
     val surface: String?,
     val number: String?, // Single char base36 for both
     val unique: String?,
-    val status: String?,
-    val location: String?,
-    val supportQuantity: String?,
-    val media: String?,
-    val mediaSupplements: String?,
-    val antibiotics: String?,
-    val wellCount: Int?,
-    val creationDate: String?,
-    val lastWash: String?,
-    val lastFeed: String?,
-    val feedingSchedule: String?,
-    val washSchedule: String?,
-    val treatmentStart: String?,
-    val notes: String?,
-    val parentCells: String?
+    val status: String? = null,
+    val location: String? = null,
+    val specificLocation: String? = null, // Only for Frozen Other
+    val supportQuantity: String? = null,
+    val media: String? = null,
+    val mediaSupplements: String? = null,
+    val antibiotics: String? = null,
+    val wellCount: Int? = null,
+    val creationDate: String? = null,
+    val freezeDate: String? = null, // Only for Frozen Other
+    val lastWash: String? = null,
+    val lastFeed: String? = null,
+    val feedingSchedule: String? = null,
+    val washSchedule: String? = null,
+    val treatmentStart: String? = null,
+    val strain: String? = null, // Only for Frozen Other
+    val parentalPlasmid: String? = null, // Only for Frozen Other
+    val primer: String? = null, // Only for Frozen Other
+    val name: String? = null,
+    val notes: String? = null,
+    val parentCells: String? = null
 )
 
 data class ActionRequest(

@@ -31,7 +31,7 @@ class KillFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
-    // Creating an instance of the InventoryViewModel
+    // Creating an instance of the KillViewModel
     private lateinit var viewModel: KillViewModel
 
     // Storing the substitutions from the API
@@ -188,7 +188,7 @@ class KillFragment : Fragment() {
                     tagHex.setText(message)
                     tagAscii.setText(viewModel.hexToTagAscii(message))
                     cellID = viewModel.hexToTagAscii(message)
-                } else if (intArrayOf(14, 16).contains(message.length)) {
+                } else if (isCorrectLen(message)) {
                     tagHex.setText(viewModel.tagAsciiToHex(message))
                     tagAscii.setText(message)
                     cellID = message

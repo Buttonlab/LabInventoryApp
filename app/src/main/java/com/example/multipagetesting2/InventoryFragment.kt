@@ -37,11 +37,14 @@ class InventoryFragment : Fragment() {
     private lateinit var viewModel: InventoryViewModel
 
     // Variables for the data
-    private var tagList = ArrayList<String>()
+    private var tagList = ArrayList<CellItem>()
     private val uniqueTags: MutableSet<String> = mutableSetOf()
 
     // The RecyclerView that displays the list of tags
     private lateinit var rvTags: RecyclerView
+
+    // Adapter used for the tagList display
+    private lateinit var tagAdapter: RfidTagsAdapter
 
     // The touchListener used to enable touch actions on the tags
     private var touchListener: RecyclerTouchListener? = null
@@ -51,8 +54,17 @@ class InventoryFragment : Fragment() {
     private var location: String? = null
     private lateinit var locationText: TextView
 
+    // The textView for the tag count
+    private lateinit var tagCounter: TextView
+
+    // Holding if the API can be reached
+    var canReachAPI = false
+
     // Storing the substitutions from the API
     val substitutions = DataRepository.substitutions
+
+    // Storing the total number of tags at a location
+    private var numAtLoc = -1
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
@@ -93,10 +105,10 @@ class InventoryFragment : Fragment() {
         viewModel.setUnique(false)
 
         // Setup the tag count
-        val tagCounter = binding.tagCount
+        tagCounter = binding.tagCount
 
         // Setup the recyclerView
-        val tagAdapter = RfidTagsAdapter(ArrayList())
+        tagAdapter = RfidTagsAdapter(ArrayList())
         rvTags = binding.rvTags
         val possibleTypes = substitutions?.subs?.get("type")?.keys?.toList()
         rvTags.apply {
@@ -116,10 +128,8 @@ class InventoryFragment : Fragment() {
                                 if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
                                     inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
                                 }
-                                if (newMsg.any { !it.isLetterOrDigit() || !it.isWhitespace() } && inDB && intArrayOf(14, 16).contains(newMsg.length)) {
-                                    tagList.add("${splitMsg[0]}:$newMsg")
-                                    tagCounter.setText("${tagList.size}")
-                                    tagAdapter.updateData(tagList)
+                                if (newMsg.any { !it.isLetterOrDigit() || !it.isWhitespace() } && inDB && isCorrectLen(newMsg)) {
+                                    addTagToList(newMsg)
                                 }
                             }
 
@@ -138,8 +148,10 @@ class InventoryFragment : Fragment() {
                         val removeTag = tagList[position]
                         tagList.removeAt(position)
                         tagAdapter.removeItem(removeTag)
-                        viewModel.removeFromSet(removeTag)
-                        tagCounter.setText((Integer.parseInt(tagCounter.text.toString())-1).toString())
+                        viewModel.removeFromSet(reprCell(removeTag))
+                        val tagCountNum = Integer.parseInt(tagCounter.text.toString().split("/").first())
+                        val tagText = (tagCountNum-1).toString() + "/" + (if (numAtLoc!=-1) numAtLoc.toString() else "?")
+                        tagCounter.setText(tagText)
                     }
                 })
                 addOnItemTouchListener(touchListener!!)
@@ -162,6 +174,25 @@ class InventoryFragment : Fragment() {
                     location = locationMap.maxByOrNull { it.value } ?.key.toString()
                     val locationSub = substitutions?.subs?.get("location")?.get(location) ?: location
                     locationText.setText("Location: ${locationSub}")
+
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        var tempNum = -1
+                        try {
+
+                            if (location != null) {
+                                val response = DataRepository.getCountByFieldValue("location", location!!)
+                                if (response.isSuccessful && response.body() != null) {
+                                    tempNum = response.body()!!.count ?: -1
+                                }
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            tempNum = -1
+                        }
+                        withContext(Dispatchers.Main) {
+                            numAtLoc = tempNum
+                        }
+                    }
 
                     Log.d("InventoryFragment", "Location map: ${locationMap}")
                     Log.d("InventoryFragment", "Max location: ${location}")
@@ -190,19 +221,6 @@ class InventoryFragment : Fragment() {
         viewModel.setPowerLevel(true)
         togglePwr.background.setTint(colorOn)
         togglePwr.isChecked = false
-//        when (isMax) { // Set the button to the current state of the reader, it will save past user settings
-//            null -> {
-//                Log.e("Inventory Fragment", "Could not verify device power level")
-//            }
-//            true -> { // When the reader is at low power set the button to the correct state
-//                togglePwr.isChecked = true
-//                togglePwr.background.setTint(colorOff)
-//            }
-//            false -> { // When the reader is at max power set the button to the correct state
-//                togglePwr.isChecked = false
-//                togglePwr.background.setTint(colorOn)
-//            }
-//        }
         togglePwr.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 // If on High go to Low
@@ -225,7 +243,7 @@ class InventoryFragment : Fragment() {
             if (location != null) {
                 if (tagList.size > 0) {
                     val formatList = ArrayList<String>(tagList.size)
-                    tagList.forEach {tag -> formatList.add(tag.split(":", limit=2)[1])}
+                    tagList.forEach {cell -> formatList.add(reprCell(cell))}
                     val request = ActionRequest(
                         target = formatList,
                         checksum = asciiToCrc32(formatList),
@@ -308,7 +326,6 @@ class InventoryFragment : Fragment() {
             }
         }
 
-
         viewModel.setEnabled(true)
 
         // Reset all of the tag lists and counters to make sure nothing is saved between leaving and returning to the page
@@ -320,6 +337,25 @@ class InventoryFragment : Fragment() {
         locationMap.clear()
         locationText.setText("Location: -Scan to find location-")
         Log.d("InventoryFragment", "tagList size: ${tagList.size}")
+
+        // Check for API
+        viewLifecycleOwner.lifecycleScope.launch {
+            var temp = false
+            for (j in 1..2) {
+                try {
+                    temp = DataRepository.pingAPI()
+                    if (temp) {
+                        break
+                    }
+                } catch (e: Exception) {
+                    temp = false
+                }
+
+            }
+            withContext(Dispatchers.Main) {
+                canReachAPI = temp
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -327,6 +363,38 @@ class InventoryFragment : Fragment() {
         viewModel.setEnabled(false)
         _binding = null
     }
+
+    private fun addTagToList(cellID: String) {
+        if (canReachAPI) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                var cellItem = cellFromEPC(cellID)
+                try {
+                    val response = DataRepository.getCellByID(cellID)
+                    if (response.isSuccessful && response.body() != null) {
+                        cellItem = response.body()!!
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+                withContext(Dispatchers.Main) {
+                    tagList.add(cellItem)
+                    val tagText = tagList.size.toString() + "/" + (if (numAtLoc!=-1) numAtLoc.toString() else "?")
+                    tagCounter.setText(tagText)
+                    Log.d("TagActionFragment", "Tag count: ${tagList.size}")
+                    tagAdapter.updateData(tagList)
+                }
+            }
+        } else {
+            // Create the basic cell item here as a fallback case if there is no API access
+            tagList.add(cellFromEPC(cellID))
+            val tagText = tagList.size.toString() + "/" + (if (numAtLoc!=-1) numAtLoc.toString() else "?")
+            tagCounter.setText(tagText)
+            Log.d("TagActionFragment", "Tag count: ${tagList.size}")
+            tagAdapter.updateData(tagList)
+        }
+    }
+
 
     private fun getCommander(): AsciiCommander? {
         return AsciiCommander.sharedInstance()

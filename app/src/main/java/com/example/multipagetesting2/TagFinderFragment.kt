@@ -335,7 +335,7 @@ class TagFinderFragment : Fragment() {
                         viewModel.updateTarget()
                     }
                 }
-            } else if (intArrayOf(14, 16).contains(text.length)) {
+            } else if (isCorrectLen(text)) {
                 viewModel.setTargetTagEpc(text)
                 viewModel.updateTarget()
             }

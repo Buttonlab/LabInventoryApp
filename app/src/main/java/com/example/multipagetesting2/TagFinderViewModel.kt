@@ -305,7 +305,7 @@ class TagFinderViewModel(): ViewModel() {
                         mInventoryCommand.useAlert = TriState.NO
                     }
 
-                    Log.d("TagFinderViewModel", "Kill command: ${mInventoryCommand.commandLine}")
+                    Log.d("TagFinderViewModel", "Inventory command: ${mInventoryCommand.commandLine}")
                     getCommander()!!.executeCommand(mInventoryCommand)
                     success = mInventoryCommand.isSuccessful
                 }

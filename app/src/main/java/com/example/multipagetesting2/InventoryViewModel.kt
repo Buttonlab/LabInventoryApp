@@ -132,7 +132,7 @@ class InventoryViewModel(): ViewModel() {
     }
 
     fun removeFromSet(tag: String) {
-        mUniqueTransponders.remove(tagAsciiToHex(tag.split(":", limit=2)[1]))
+        mUniqueTransponders.remove(tagAsciiToHex(tag))
     }
 
     //

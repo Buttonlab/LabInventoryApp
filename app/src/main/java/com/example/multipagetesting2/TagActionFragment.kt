@@ -24,7 +24,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.multipagetesting2.databinding.FragmentTagActionBinding
 import com.google.gson.Gson
 import com.uk.tsl.rfid.asciiprotocol.AsciiCommander
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 /**
@@ -52,7 +55,7 @@ class TagActionFragment : Fragment() {
     private var touchListener: RecyclerTouchListener? = null
 
     // Variables for the data
-    private var tagList = ArrayList<String>()
+    private var tagList = ArrayList<CellItem>()
     private val uniqueTags: MutableSet<String> = mutableSetOf()
 
     // Adapter used for the tagList display
@@ -64,6 +67,9 @@ class TagActionFragment : Fragment() {
 
     // The textView for the tag count
     private lateinit var tagCounter: TextView
+
+    // Holding if the API can be reached
+    var canReachAPI = false
 
     // Holds the chosen action and its fields
     private var chosenAction: String? = null
@@ -127,7 +133,7 @@ class TagActionFragment : Fragment() {
                         val removeTag = tagList[position]
                         tagList.removeAt(position)
                         tagAdapter.removeItem(removeTag)
-                        viewModel.removeFromSet(removeTag)
+                        viewModel.removeFromSet(reprCell(removeTag))
                         tagCounter.setText((Integer.parseInt(tagCounter.text.toString()) - 1).toString())
                     }
                 })
@@ -201,11 +207,8 @@ class TagActionFragment : Fragment() {
                                     if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
                                         inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
                                     }
-                                    if ((intArrayOf(14, 16).contains(newMsg.length)) && inDB) {
-                                        tagList.add("BC:$newMsg")
-                                        tagCounter.setText("${tagList.size}")
-                                        Log.d("TagActionFragment", "Tag count: ${tagList.size}")
-                                        tagAdapter.updateData(tagList)
+                                    if (isCorrectLen(newMsg) && inDB) {
+                                        addTagToList(newMsg)
                                     }
                                 }
                             }
@@ -221,15 +224,11 @@ class TagActionFragment : Fragment() {
                                 if (newMsg.all { (it.isLetterOrDigit() || it.isWhitespace()) } && newMsg.isNotEmpty()) { // Don't display a tag if it does not contain valid characters
 
                                     var inDB = true
-
                                     if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
                                         inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
                                     }
-                                    if (intArrayOf(14, 16).contains(newMsg.length) && inDB) {
-                                        tagList.add("EPC:$newMsg")
-                                        tagCounter.setText("${tagList.size}")
-                                        Log.d("TagActionFragment", "Tag count: ${tagList.size}")
-                                        tagAdapter.updateData(tagList)
+                                    if (isCorrectLen(newMsg) && inDB) {
+                                        addTagToList(newMsg)
                                     }
 
                                 }
@@ -281,6 +280,25 @@ class TagActionFragment : Fragment() {
         }
 
         viewModel.setEnabled(true)
+
+        // Check for API
+        viewLifecycleOwner.lifecycleScope.launch {
+            var temp = false
+            for (j in 1..2) {
+                try {
+                    temp = DataRepository.pingAPI()
+                    if (temp) {
+                        break
+                    }
+                } catch (e: Exception) {
+                    temp = false
+                }
+
+            }
+            withContext(Dispatchers.Main) {
+                canReachAPI = temp
+            }
+        }
     }
 
     override fun onDestroyView() {
@@ -292,6 +310,34 @@ class TagActionFragment : Fragment() {
 
     private fun getCommander(): AsciiCommander? {
         return AsciiCommander.sharedInstance()
+    }
+    private fun addTagToList(cellID: String) {
+        if (canReachAPI) {
+            viewLifecycleOwner.lifecycleScope.launch {
+                var cellItem = cellFromEPC(cellID)
+                try {
+                    val response = DataRepository.getCellByID(cellID)
+                    if (response.isSuccessful && response.body() != null) {
+                        cellItem = response.body()!!
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+                withContext(Dispatchers.Main) {
+                    tagList.add(cellItem)
+                    tagCounter.setText("${tagList.size}")
+                    Log.d("TagActionFragment", "Tag count: ${tagList.size}")
+                    tagAdapter.updateData(tagList)
+                }
+            }
+        } else {
+            // Create the basic cell item here as a fallback case if there is no API access
+            tagList.add(cellFromEPC(cellID))
+            tagCounter.setText("${tagList.size}")
+            Log.d("TagActionFragment", "Tag count: ${tagList.size}")
+            tagAdapter.updateData(tagList)
+        }
     }
 
     // Function to add a field input to the page
@@ -438,13 +484,13 @@ class TagActionFragment : Fragment() {
             if (tagList.size > 0) {
                 // Get the list of tags in the correct format
                 val formatList = ArrayList<String>(tagList.size)
-                tagList.forEach {it -> formatList.add(it.split(":", limit=2)[1])}
+                tagList.forEach {cell -> formatList.add(reprCell(cell))}
 
                 // Creating the map to store the fields and the changes the user made for the API call
                 var finalFields: MutableMap<String, String>? = mutableMapOf()
 
                 // This code goes through all the fields of the action and adds them to the finalFields variable to send as an action
-                val noChangesList = listOf("now","increment", "clear")
+                val noChangesList = listOf("now", "increment", "clear")
                 fields?.forEach { (key, value) ->
 
                     if (key.equals("number", true)) { // Set the number if it exists
