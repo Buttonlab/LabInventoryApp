@@ -1,5 +1,3 @@
-// TODO: This does not successfully check for a tag being deleted
-
 package com.example.multipagetesting2
 
 import android.util.Log

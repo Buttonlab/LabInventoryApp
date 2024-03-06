@@ -108,7 +108,7 @@ class RfidTagsAdapter(private val tags: ArrayList<CellItem>) : RecyclerView.Adap
             val number = cell.number?.toInt(36) ?: ""
             val owner = substitutions?.subs?.get("owner")?.get(cell.owner) ?: cell.owner ?: ""
 
-            textVisible = "$cellType    $genemod   $gene1   $gene2\n$resistance   Clone#$clone   Psg#${passage}   #${number}${owner}"
+            textVisible = "$cellType    $genemod   $gene1   $gene2\n$resistance  Clone#$clone  Psg#${passage}  #${number}  ${owner}"
         } else if (cell.type.equals("5")) {
             val otherType = substitutions?.subs?.get("cellType")?.get(cell.otherType) ?: cell.otherType ?: ""
             val otherGenemod = substitutions?.subs?.get("genemod")?.get(cell.otherGenemod) ?: cell.otherGenemod ?: ""
@@ -120,7 +120,7 @@ class RfidTagsAdapter(private val tags: ArrayList<CellItem>) : RecyclerView.Adap
             val number = cell.number?.toInt(36) ?: ""
             val owner = substitutions?.subs?.get("owner")?.get(cell.owner) ?: cell.owner ?: ""
 
-            textVisible = "$otherType    $otherGenemod   $gene1   $gene2\n$primaryResistance   $vectorResistance   Clone#$clone   #${number}${owner}"
+            textVisible = "$otherType    $otherGenemod   $gene1   $gene2\n$primaryResistance  $vectorResistance  Clone#$clone  #${number}  ${owner}"
         } else if (cell.type.equals("6")) {
             val name = cell.name ?: cell.id
 

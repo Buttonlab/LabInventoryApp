@@ -284,19 +284,6 @@ class  MainActivity : AppCompatActivity() {
         ReaderManager.sharedInstance().onResume()
         ReaderManager.sharedInstance().updateList()
 
-        // Select the last reader it was connected to before app shutdown
-        // TODO: This does not work
-//        val readerList = ReaderManager.sharedInstance().readerList
-//        for (reader in readerList.list()) {
-//            if (getLastConnectedReader() != null) {
-//                if (reader.displayName == getLastConnectedReader()) {
-//                    mReader = reader
-//                    Log.d("MainActivity", "Setting mReader to: ${reader.displayName}")
-//                    break
-//                }
-//            }
-//        }
-
         autoSelectReader(!readerManagerDidCauseOnPause)
         try {
             if (!getCommander().hasSynchronousResponder) {

@@ -135,7 +135,6 @@ class KillFragment : Fragment() {
                 if (viewModel.checkTag(hexStr)) {// TODO: This doesnt appear to work
                     Toast.makeText(requireContext(), "Kill succeeded!", Toast.LENGTH_SHORT).show()
 
-                    // TODO: call the api kill command here
                     viewLifecycleOwner.lifecycleScope.launch {
                         var canReachAPI = false
                         for (j in 1..2) {

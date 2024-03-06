@@ -1,5 +1,4 @@
 package com.example.multipagetesting2
-// TODO: Make sure duplicates are not filtered out here but on the fragment side
 
 import android.util.Log
 import androidx.lifecycle.MutableLiveData

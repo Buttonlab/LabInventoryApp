@@ -335,3 +335,17 @@ fun cellFromEPC(cellID: String): CellItem {
         unique = foundParts.get("unique"))
 }
 
+fun toNormalCase(camelCaseString: String): String {
+    var outputStr = ""
+    for (num in camelCaseString.indices) {
+        if (num == 0) {
+            outputStr += camelCaseString[num].uppercaseChar()
+        } else if (camelCaseString[num].isUpperCase()) {
+            outputStr += " ${camelCaseString[num]}"
+        } else{
+            outputStr += camelCaseString[num]
+        }
+    }
+    return outputStr
+}
+

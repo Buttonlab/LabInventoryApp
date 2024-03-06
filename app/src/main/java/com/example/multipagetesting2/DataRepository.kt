@@ -10,8 +10,6 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.ConnectException
 
-// TODO: Need to implement a system to queue API call while network is not accessible
-
 object DataRepository {
 
     // ==========================================================

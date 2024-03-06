@@ -703,9 +703,10 @@
                     android:orientation="horizontal"
                     android:visibility="gone">
                     <TextView
+                        android:id="@+id/wellCountTitle"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Well Count: "
+                        android:text="@string/well_count"
                         android:textAlignment="center"
                         android:textSize="26sp" />
                     <TextView

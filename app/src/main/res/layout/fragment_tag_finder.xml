@@ -178,7 +178,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_weight="2.4"
-                        android:hint="Type or select Primary/Immortal" />
+                        android:hint="Type or select Primary/Immortal/Other" />
                     <ImageButton
                         android:id="@+id/typeClear"
                         android:layout_width="48dp"
@@ -317,7 +317,6 @@
 
 
 
-
             <LinearLayout
                 android:id="@+id/cellTypeLayout"
                 android:layout_width="match_parent"
@@ -425,6 +424,164 @@
 
                 <ImageButton
                     android:id="@+id/resistanceDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:id="@+id/otherTypeLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/otherTypeFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Other Type" />
+                    <ImageButton
+                        android:id="@+id/otherTypeClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/otherTypeFilter"
+                        android:layout_alignRight="@id/otherTypeFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/otherTypeDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/otherGenemodLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/otherGenemodFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Genemod" />
+                    <ImageButton
+                        android:id="@+id/otherGenemodClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/otherGenemodFilter"
+                        android:layout_alignRight="@id/otherGenemodFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/otherGenemodDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/primaryResistanceLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/primaryResistanceFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Primary Resistance" />
+                    <ImageButton
+                        android:id="@+id/primaryResistanceClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/primaryResistanceFilter"
+                        android:layout_alignRight="@id/primaryResistanceFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/primaryResistanceDropdown"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight=".4"
+                    android:src="@drawable/ic_dropdown"
+                    app:cornerRadius="6dp" />
+            </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:id="@+id/locationLayout"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:weightSum="3">
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2.4"
+                    android:paddingRight="8dp">
+                    <AutoCompleteTextView
+                        android:id="@+id/locationFilter"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_weight="2.4"
+                        android:hint="Type or select Location" />
+                    <ImageButton
+                        android:id="@+id/locationClear"
+                        android:layout_width="48dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignEnd="@id/locationFilter"
+                        android:layout_alignRight="@id/locationFilter"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_cross"
+                        android:background="?android:attr/selectableItemBackground"/>
+                </RelativeLayout>
+
+                <ImageButton
+                    android:id="@+id/locationDropdown"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight=".4"

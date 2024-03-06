@@ -25,7 +25,6 @@ import com.example.multipagetesting2.databinding.FragmentTagActionBinding
 import com.google.gson.Gson
 import com.uk.tsl.rfid.asciiprotocol.AsciiCommander
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -342,6 +341,8 @@ class TagActionFragment : Fragment() {
 
     // Function to add a field input to the page
     private fun addField(fieldName: String, default: String) {
+        var displayName = fieldName
+
         // Make the button to show fields visible
         toggleFolder.visibility = View.VISIBLE
 
@@ -358,18 +359,24 @@ class TagActionFragment : Fragment() {
         showInputDropdown.setOnClickListener { textinput.showDropDown() }
 
         // If this is a number field make it only accept numbers of the correct size
-        if (fieldName.equals("number", true) ||
-            fieldName.equals("passage", true) ||
-            fieldName.equals("clone", true) ||
-            fieldName.equals("distNum", true)) {
+        if (displayName.equals("number", true) ||
+            displayName.equals("passage", true) ||
+            displayName.equals("clone", true) ||
+            displayName.equals("distNum", true) ||
+            displayName.equals("wellCount", true)) {
 
             // Get the maximum number the field can be set to. Passage can only be 35 for Primary cells but there is no realistic way to know what cells the action is applied to
             var maxNum = 35
-            if (fieldName.equals("passage", true) || fieldName.equals("clone", true)) { maxNum = 255 }
-            else if (fieldName.equals("distNum", true)) { maxNum = 1295 }
+            if (displayName.equals("passage", true) || displayName.equals("clone", true)) { maxNum = 255 }
+            else if (displayName.equals("distNum", true)) { maxNum = 1295 }
+            else if (displayName.equals("wellCount", true)) { maxNum = -1; displayName = "cellCountInM" }
 
             // Make the input type a number
-            textinput.inputType = InputType.TYPE_CLASS_NUMBER
+            if (maxNum == -1) {
+                textinput.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            } else {
+                textinput.inputType = InputType.TYPE_CLASS_NUMBER
+            }
             // Add the text watcher to enforce a min & max number
             textinput.addTextChangedListener(createTextWatcher(maxNum))
 
@@ -378,9 +385,9 @@ class TagActionFragment : Fragment() {
         }
 
         // Assign tags and text for the elements relevant to the fieldName
-        val capitalizedField = fieldName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString() }
+        val capitalizedField = displayName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString() }
         label.tag = capitalizedField+"Label"
-        label.text = capitalizedField
+        label.text = toNormalCase(displayName)
         textinput.tag = capitalizedField+"Select"
         textinput.setText(default)
         textinput.hint = default
@@ -388,7 +395,7 @@ class TagActionFragment : Fragment() {
         // Get an assign the valid options for this field from the substitutions
         val possibleValues = ArrayList<String>()
         if (default == "unchanged") { possibleValues.add("unchanged") }
-        substitutions?.subs?.get(fieldName)?.values?.let { possibleValues.addAll(it) }
+        substitutions?.subs?.get(displayName)?.values?.let { possibleValues.addAll(it) }
 
         Log.d("TagActionFragment", "Possible Values: $possibleValues")
         if (possibleValues.isNotEmpty()) {
@@ -409,12 +416,17 @@ class TagActionFragment : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                if (s?.isNotEmpty() == true) {
-                    val number = s.toString().toIntOrNull() ?: return
-                    if (number > maxNum) {
-                        s.replace(0, s.length, maxNum.toString())
-                    } else if (number < 0) {
-                        s.replace(0, s.length, "0")
+                if (s?.isBlank() == false) {
+                    if (maxNum == -1) {
+                        if (s.first().equals('.')) s.replace(0, s.length, "0$s")
+                        val number = s.toString().toFloatOrNull() ?: return
+                    } else {
+                        val number = s.toString().toIntOrNull() ?: return
+                        if (number > maxNum) {
+                            s.replace(0, s.length, maxNum.toString())
+                        } else if (number < 0) {
+                            s.replace(0, s.length, "0")
+                        }
                     }
                 }
             }
@@ -434,7 +446,7 @@ class TagActionFragment : Fragment() {
     private fun setupAction(newAction: String) {
         Log.d("TagActionFragment", "setupAction($newAction)")
         if (chosenAction != newAction && newAction.isNotEmpty()) { // continue only if there is a change
-            if (actions != null && actions.acts != null) { // continue only if the actions were retrieved from the API
+            if (actions?.acts != null) { // continue only if the actions were retrieved from the API
                 if (actions.acts.containsKey(newAction)) { // continue only if it is a valid action
                     // Reset the fields to remove all past settings or changes
                     resetFields()
@@ -443,16 +455,18 @@ class TagActionFragment : Fragment() {
                     chosenAction = newAction
                     fields = actions.acts.getValue(chosenAction!!).toMutableMap()
                     fields?.forEach { (key, value) -> // Only show fields that are unchanged or set
-                        if (value.equals("unchanged", true)){ // Keep the last value
-                            addField(key, value)
-                        } else if (value.startsWith("set")){ // Set it to a specific value
-                            if (substitutions?.subs?.containsKey(key) == true) {
-                                val subsVal = substitutions.subs.get(key)?.get(value.split(":", limit=2)[1]) ?: value.split(":", limit=2)[1]
-                                addField(key, subsVal)
-                            } else {
-                                addField(key, value.split(":", limit=2)[1])
-                            }
+                        if (!key.equals("type", true)) { // Never show type field
+                            if (value.equals("unchanged", true)){ // Keep the last value
+                                addField(key, value)
+                            } else if (value.startsWith("set")){ // Set it to a specific value
+                                if (substitutions?.subs?.containsKey(key) == true) {
+                                    val subsVal = substitutions.subs.get(key)?.get(value.split(":", limit=2)[1]) ?: value.split(":", limit=2)[1]
+                                    addField(key, subsVal)
+                                } else {
+                                    addField(key, value.split(":", limit=2)[1])
+                                }
 
+                            }
                         }
                     }
                 }
@@ -506,6 +520,8 @@ class TagActionFragment : Fragment() {
                         } catch (e: Exception) {
                             Log.e("TagActionFragment", "Could not convert the number input $userText")
                         }
+                    } else if (key.equals("type", true)) {
+                        finalFields?.put(key, value.split(":", limit=2)[1])
                     } else {
                         if (value !in noChangesList) { // Only make a change to the field value if it isn't "now", "increment", or "clear"
                             // Get the text the user inputted
@@ -520,6 +536,13 @@ class TagActionFragment : Fragment() {
                                 if (substitutions?.subs != null) {
                                     if (userText.equals("unchanged", true)) {
                                         finalFields?.put(key, userText) // Setting the value to the unchanged value
+                                    } else if (key == "wellCount" && chosenAction!!.startsWith("freeze", true)) { // If the field is cell count
+                                        val number = userText.toFloatOrNull()
+                                        if (number != null) {
+                                            finalFields?.put(key, (number * 1000000).toString()) // Setting the value to the user inputted text
+                                        } else {
+                                            Toast.makeText(requireContext(), "The input '$userText' is not a valid number for", Toast.LENGTH_SHORT).show()
+                                        }
                                     } else if (!substitutions.subs.containsKey(key)) { // If the field is not in substitutions
                                         finalFields?.put(key, userText) // Setting the value to the user inputted text
                                     } else {

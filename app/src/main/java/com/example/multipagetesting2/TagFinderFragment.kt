@@ -69,13 +69,13 @@ class TagFinderFragment : Fragment() {
     private lateinit var genotypeClear: ImageButton
     private lateinit var genotypeDropdown: ImageButton
 
-    // The dist1 text field and dropdown button
+    // The distNum text field and dropdown button
     private lateinit var distNumLayout: LinearLayout
     private lateinit var distNumFilter: AutoCompleteTextView
     private lateinit var distNumClear: ImageButton
     private lateinit var distNumDropdown: ImageButton
 
-    // The dist2 text field and dropdown button
+    // The surface text field and dropdown button
     private lateinit var surfaceLayout: LinearLayout
     private lateinit var surfaceFilter: AutoCompleteTextView
     private lateinit var surfaceClear: ImageButton
@@ -99,6 +99,30 @@ class TagFinderFragment : Fragment() {
     private lateinit var resistanceClear: ImageButton
     private lateinit var resistanceDropdown: ImageButton
 
+    // The otherType text field and dropdown button
+    private lateinit var otherTypeLayout: LinearLayout
+    private lateinit var otherTypeFilter: AutoCompleteTextView
+    private lateinit var otherTypeClear: ImageButton
+    private lateinit var otherTypeDropdown: ImageButton
+
+    // The otherGenemod text field and dropdown button
+    private lateinit var otherGenemodLayout: LinearLayout
+    private lateinit var otherGenemodFilter: AutoCompleteTextView
+    private lateinit var otherGenemodClear: ImageButton
+    private lateinit var otherGenemodDropdown: ImageButton
+
+    // The primaryResistance text field and dropdown button
+    private lateinit var primaryResistanceLayout: LinearLayout
+    private lateinit var primaryResistanceFilter: AutoCompleteTextView
+    private lateinit var primaryResistanceClear: ImageButton
+    private lateinit var primaryResistanceDropdown: ImageButton
+
+    // The location text field and dropdown button
+    private lateinit var locationLayout: LinearLayout
+    private lateinit var locationFilter: AutoCompleteTextView
+    private lateinit var locationClear: ImageButton
+    private lateinit var locationDropdown: ImageButton
+
     // Holding the response of the API call
     private var uniqueGenotypes: ArrayList<String> = arrayListOf()
     private var uniqueDistNums :ArrayList<String> = arrayListOf()
@@ -106,6 +130,10 @@ class TagFinderFragment : Fragment() {
     private var uniqueCellTypes :ArrayList<String> = arrayListOf()
     private var uniqueGenemods :ArrayList<String> = arrayListOf()
     private var uniqueResistances :ArrayList<String> = arrayListOf()
+    private var uniqueOtherTypes :ArrayList<String> = arrayListOf()
+    private var uniqueOtherGenemods :ArrayList<String> = arrayListOf()
+    private var uniquePrimaryResistances :ArrayList<String> = arrayListOf()
+    private var uniqueLocations :ArrayList<String> = arrayListOf()
 
     // Adapter for the main target dropdown
     private var targetAdapter: ArrayAdapter<String>? = null
@@ -113,12 +141,16 @@ class TagFinderFragment : Fragment() {
     // Storing the cells list from the API
     private lateinit var cellsList: ArrayList<String>
     private lateinit var filteredList: ArrayList<String>
+    private var basicItemsList = arrayListOf<CellItem>()
 
     // Storing the substitutions from the API
     val substitutions = DataRepository.substitutions
 
     // Storing the map of processed and raw tags
     val epcListMap = mutableMapOf<String, String>()
+
+    // Holding if the API can be reached
+    var canReachAPI = false
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -176,7 +208,7 @@ class TagFinderFragment : Fragment() {
         typeClear.setOnClickListener { typeFilter.text.clear() }
         typeDropdown = binding.typeDropdown
         typeDropdown.setOnClickListener { typeFilter.showDropDown() }
-        val possibleTypes = arrayListOf("Primary", "Immortal")
+        val possibleTypes = arrayListOf("Primary", "Immortal", "Other", "Basic")
         val typeAdapter = ArrayAdapter(
             requireContext(),
             R.layout.dropdown_item,
@@ -245,6 +277,66 @@ class TagFinderFragment : Fragment() {
         resistanceClear.setOnClickListener { resistanceFilter.text.clear() }
         resistanceDropdown = binding.resistanceDropdown
         resistanceDropdown.setOnClickListener { resistanceFilter.showDropDown() }
+
+
+        // Setup for the otherType filter
+        otherTypeLayout = binding.otherTypeLayout
+        otherTypeLayout.visibility = View.GONE
+        otherTypeFilter = binding.otherTypeFilter
+        otherTypeFilter.addTextChangedListener(filterTextChangedListener)
+        otherTypeClear = binding.otherTypeClear
+        otherTypeClear.setOnClickListener { otherTypeFilter.text.clear() }
+        otherTypeDropdown = binding.otherTypeDropdown
+        otherTypeDropdown.setOnClickListener { otherTypeFilter.showDropDown() }
+
+        // Setup for the genemod filter
+        otherGenemodLayout = binding.otherGenemodLayout
+        otherGenemodLayout.visibility = View.GONE
+        otherGenemodFilter = binding.otherGenemodFilter
+        otherGenemodFilter.addTextChangedListener(filterTextChangedListener)
+        otherGenemodClear = binding.otherGenemodClear
+        otherGenemodClear.setOnClickListener { otherGenemodFilter.text.clear() }
+        otherGenemodDropdown = binding.otherGenemodDropdown
+        otherGenemodDropdown.setOnClickListener { otherGenemodFilter.showDropDown() }
+
+        // Setup for the resistance filter
+        primaryResistanceLayout = binding.primaryResistanceLayout
+        primaryResistanceLayout.visibility = View.GONE
+        primaryResistanceFilter = binding.primaryResistanceFilter
+        primaryResistanceFilter.addTextChangedListener(filterTextChangedListener)
+        primaryResistanceClear = binding.primaryResistanceClear
+        primaryResistanceClear.setOnClickListener { primaryResistanceFilter.text.clear() }
+        primaryResistanceDropdown = binding.primaryResistanceDropdown
+        primaryResistanceDropdown.setOnClickListener { primaryResistanceFilter.showDropDown() }
+
+        // Setup for the resistance filter
+        locationLayout = binding.locationLayout
+        locationLayout.visibility = View.GONE
+        locationFilter = binding.locationFilter
+        locationFilter.addTextChangedListener(filterTextChangedListener)
+        locationClear = binding.locationClear
+        locationClear.setOnClickListener { locationFilter.text.clear() }
+        locationDropdown = binding.locationDropdown
+        locationDropdown.setOnClickListener { locationFilter.showDropDown() }
+
+        // Check for API
+        viewLifecycleOwner.lifecycleScope.launch {
+            var temp = false
+            for (j in 1..2) {
+                try {
+                    temp = DataRepository.pingAPI()
+                    if (temp) {
+                        break
+                    }
+                } catch (e: Exception) {
+                    temp = false
+                }
+
+            }
+            withContext(Dispatchers.Main) {
+                canReachAPI = temp
+            }
+        }
 
 
         // Setting the responder for the barcode
@@ -316,9 +408,9 @@ class TagFinderFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
             // Runs this when the user stops changing the text field
             val text = s.toString()
-            if (epcListMap.containsKey(text)) { // If the given epc code is a valid length
+            if (epcListMap.containsKey(text)) {  // This means the user has selected on of the options in the dropdown box
                 var rawEpc = epcListMap[text]
-                if (rawEpc!!.startsWith("1") || rawEpc!!.startsWith("3")) {
+                if (rawEpc!!.startsWith("1") || rawEpc!!.startsWith("3")) {  // If the user selected a primary cell get the correct owner value before trying to find it
                     lifecycleScope.launch {
                         try {
                             // Getting the original owner from the API
@@ -334,8 +426,11 @@ class TagFinderFragment : Fragment() {
                         viewModel.setTargetTagEpc(rawEpc)
                         viewModel.updateTarget()
                     }
+                } else {
+                    viewModel.setTargetTagEpc(rawEpc)
+                    viewModel.updateTarget()
                 }
-            } else if (isCorrectLen(text)) {
+            } else if (isCorrectLen(text)) { // This means the user has typed or pasted some text
                 viewModel.setTargetTagEpc(text)
                 viewModel.updateTarget()
             }
@@ -383,6 +478,30 @@ class TagFinderFragment : Fragment() {
                 val passage = tagText.substring(8,10).toInt(16)
                 val number = tagText.substring(11,12).toInt(36)
                 textVisible = "$cellType    $genemod   $gene1   $gene2\n$resistance   Clone#$clone   Psg#${passage}   #${number}"
+            }catch (e: Exception) {
+                textVisible = "$tagText   ERROR!"
+            }
+
+        } else if (tagText.first().equals('5')) {
+            try {
+                val otherType = substitutions?.subs?.get("cellType")?.get(tagText.substring(1,2)) ?: tagText.substring(1,2)
+                val otherGenemod = substitutions?.subs?.get("genemod")?.get(tagText.substring(2,3)) ?: tagText.substring(2,3)
+                val gene1 = substitutions?.subs?.get("gene1")?.get(tagText.substring(3,4)) ?: tagText.substring(3,4)
+                val gene2 = substitutions?.subs?.get("gene2")?.get(tagText.substring(4,5)) ?: tagText.substring(4,5)
+                val primaryResistance = substitutions?.subs?.get("resistance")?.get(tagText.substring(5,6)) ?: tagText.substring(5,6)
+                val vectorResistance = substitutions?.subs?.get("resistance")?.get(tagText.substring(5,6)) ?: tagText.substring(6,7)
+                val clone = tagText.substring(7,9).toInt(16)
+                val number = tagText.substring(10,11).toInt(36)
+                textVisible = "$otherType    $otherGenemod   $gene1   $gene2\n$primaryResistance  $vectorResistance  Clone#$clone  #${number}"
+            }catch (e: Exception) {
+                textVisible = "$tagText   ERROR!"
+            }
+
+        } else if (tagText.first().equals('6')) {
+            try {
+                val name = getName(tagText)
+                val lineLen = minOf(name.length-1, 25)
+                textVisible = name.substring(0,lineLen) + (if (name.length-1 > 25) name.substring(26) else "")
             }catch (e: Exception) {
                 textVisible = "$tagText   ERROR!"
             }
@@ -492,7 +611,7 @@ class TagFinderFragment : Fragment() {
 
     // Function that will handle the API call to get the cells from the live database
     private fun loadCells() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             for (i in 1..2) {
                 try {
                     // Getting the cell info from the API
@@ -510,15 +629,32 @@ class TagFinderFragment : Fragment() {
                                 if (!uniqueDistNums.contains(distNum)) uniqueDistNums.add(distNum)
                                 val surface = substitutions?.subs?.get("surface")?.get(item.substring(8,9)) ?: item.substring(8,9)
                                 if (!uniqueSurfaces.contains(surface)) uniqueSurfaces.add(surface)
-                            }else if (type == "2" || type == "4") { // If the cell is immortal
-                                val cellType = substitutions?.subs?.get("cellType")?.get(item.elementAt(1).toString()) ?: item.elementAt(1).toString()
-                                if (!uniqueCellTypes.contains(cellType)) uniqueCellTypes.add(cellType)
-                                val genemod = substitutions?.subs?.get("genemod")?.get(item.elementAt(2).toString()) ?: item.elementAt(2).toString()
-                                if (!uniqueGenemods.contains(genemod)) uniqueGenemods.add(genemod)
+                            } else if (type == "2" || type == "4") { // If the cell is immortal
+                                val otherType = substitutions?.subs?.get("cellType")?.get(item.elementAt(1).toString()) ?: item.elementAt(1).toString()
+                                if (!uniqueCellTypes.contains(otherType)) uniqueCellTypes.add(otherType)
+                                val otherGenemod = substitutions?.subs?.get("otherGenemod")?.get(item.elementAt(2).toString()) ?: item.elementAt(2).toString()
+                                if (!uniqueGenemods.contains(otherGenemod)) uniqueGenemods.add(otherGenemod)
                                 val resistance = substitutions?.subs?.get("resistance")?.get(item.elementAt(5).toString()) ?: item.elementAt(5).toString()
                                 if (!uniqueResistances.contains(resistance)) uniqueResistances.add(resistance)
-                            } else {
-                                Log.e("TagFinderFragment", "Unexpected type encountered! Cell: $item")
+                            } else if (type == "5") { // If the cell is other
+                                val cellType = substitutions?.subs?.get("otherType")?.get(item.elementAt(1).toString()) ?: item.elementAt(1).toString()
+                                if (!uniqueOtherTypes.contains(cellType)) uniqueOtherTypes.add(cellType)
+                                val genemod = substitutions?.subs?.get("otherGenemod")?.get(item.elementAt(2).toString()) ?: item.elementAt(2).toString()
+                                if (!uniqueOtherGenemods.contains(genemod)) uniqueOtherGenemods.add(genemod)
+                                val primaryResistance = substitutions?.subs?.get("primaryResistance")?.get(item.elementAt(5).toString()) ?: item.elementAt(5).toString()
+                                if (!uniquePrimaryResistances.contains(primaryResistance)) uniquePrimaryResistances.add(primaryResistance)
+                            } else if (type == "6") {
+                                if (canReachAPI) {
+                                    val cellResponse = DataRepository.getCellByID(item)
+                                    if (cellResponse.isSuccessful && cellResponse.body() != null) {
+                                        val givenItem = cellResponse.body()!!
+                                        basicItemsList.add(givenItem)
+                                        if (!givenItem.location.isNullOrEmpty()) {
+                                            val location = substitutions?.subs?.get("location")?.get(givenItem.location) ?: givenItem.location
+                                            if (!uniqueLocations.contains(location)) uniqueLocations.add(location)
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -535,6 +671,7 @@ class TagFinderFragment : Fragment() {
                         mTargetTagEditText.setAdapter(targetAdapter)
                         targetAdapter!!.notifyDataSetChanged()
 
+                        uniqueGenotypes.sort()
                         val genotypeAdapter = ArrayAdapter(
                             requireContext(),
                             R.layout.dropdown_item,
@@ -543,6 +680,7 @@ class TagFinderFragment : Fragment() {
                         genotypeFilter.setAdapter(genotypeAdapter)
                         genotypeAdapter.notifyDataSetChanged()
 
+                        uniqueDistNums.sortBy { it.toInt() }
                         val distNumAdapter = ArrayAdapter(
                             requireContext(),
                             R.layout.dropdown_item,
@@ -551,6 +689,7 @@ class TagFinderFragment : Fragment() {
                         distNumFilter.setAdapter(distNumAdapter)
                         distNumAdapter.notifyDataSetChanged()
 
+                        uniqueSurfaces.sort()
                         val surfaceAdapter = ArrayAdapter(
                             requireContext(),
                             R.layout.dropdown_item,
@@ -559,6 +698,7 @@ class TagFinderFragment : Fragment() {
                         surfaceFilter.setAdapter(surfaceAdapter)
                         surfaceAdapter.notifyDataSetChanged()
 
+                        uniqueCellTypes.sort()
                         val cellTypeAdapter = ArrayAdapter(
                             requireContext(),
                             R.layout.dropdown_item,
@@ -567,6 +707,7 @@ class TagFinderFragment : Fragment() {
                         cellTypeFilter.setAdapter(cellTypeAdapter)
                         cellTypeAdapter.notifyDataSetChanged()
 
+                        uniqueGenemods.sort()
                         val genemodAdapter = ArrayAdapter(
                             requireContext(),
                             R.layout.dropdown_item,
@@ -575,6 +716,7 @@ class TagFinderFragment : Fragment() {
                         genemodFilter.setAdapter(genemodAdapter)
                         genemodAdapter.notifyDataSetChanged()
 
+                        uniqueResistances.sort()
                         val resistanceAdapter = ArrayAdapter(
                             requireContext(),
                             R.layout.dropdown_item,
@@ -582,6 +724,45 @@ class TagFinderFragment : Fragment() {
                         )
                         resistanceFilter.setAdapter(resistanceAdapter)
                         resistanceAdapter.notifyDataSetChanged()
+
+                        uniqueOtherTypes.sort()
+                        val otherTypeAdapter = ArrayAdapter(
+                            requireContext(),
+                            R.layout.dropdown_item,
+                            uniqueOtherTypes
+                        )
+                        otherTypeFilter.setAdapter(otherTypeAdapter)
+                        otherTypeAdapter.notifyDataSetChanged()
+
+                        uniqueOtherGenemods.sort()
+                        val otherGenemodAdapter = ArrayAdapter(
+                            requireContext(),
+                            R.layout.dropdown_item,
+                            uniqueOtherGenemods
+                        )
+                        otherGenemodFilter.setAdapter(otherGenemodAdapter)
+                        otherGenemodAdapter.notifyDataSetChanged()
+
+                        uniquePrimaryResistances.sort()
+                        val primaryResistanceAdapter = ArrayAdapter(
+                            requireContext(),
+                            R.layout.dropdown_item,
+                            uniquePrimaryResistances
+                        )
+                        primaryResistanceFilter.setAdapter(primaryResistanceAdapter)
+                        primaryResistanceAdapter.notifyDataSetChanged()
+
+                        uniqueLocations.sort()
+                        if (uniqueLocations.isNotEmpty()) {
+                            val locationAdapter = ArrayAdapter(
+                                requireContext(),
+                                R.layout.dropdown_item,
+                                uniqueLocations
+                            )
+                            locationFilter.setAdapter(locationAdapter)
+                            locationAdapter.notifyDataSetChanged()
+                        }
+
                     }
 
                 } catch (e: Exception) {
@@ -606,6 +787,10 @@ class TagFinderFragment : Fragment() {
                 genotypeLayout.visibility = View.VISIBLE
                 distNumLayout.visibility = View.VISIBLE
                 surfaceLayout.visibility = View.VISIBLE
+                otherTypeLayout.visibility = View.GONE
+                otherGenemodLayout.visibility = View.GONE
+                primaryResistanceLayout.visibility = View.GONE
+                locationLayout.visibility = View.GONE
 
                 // Getting the genotype filter
                 var tempText = genotypeFilter.text.toString()
@@ -654,6 +839,10 @@ class TagFinderFragment : Fragment() {
                 cellTypeLayout.visibility = View.VISIBLE
                 genemodLayout.visibility = View.VISIBLE
                 resistanceLayout.visibility = View.VISIBLE
+                otherTypeLayout.visibility = View.GONE
+                otherGenemodLayout.visibility = View.GONE
+                primaryResistanceLayout.visibility = View.GONE
+                locationLayout.visibility = View.GONE
 
                 // Getting the cellType filter
                 var tempText = cellTypeFilter.text.toString()
@@ -693,6 +882,93 @@ class TagFinderFragment : Fragment() {
 
                 // Updating the list of tags in the dropdown box
                 targetAdapter!!.notifyDataSetChanged()
+            } else if (typeFilter.text.toString() == "Other") {
+                genotypeLayout.visibility = View.GONE
+                distNumLayout.visibility = View.GONE
+                surfaceLayout.visibility = View.GONE
+                cellTypeLayout.visibility = View.GONE
+                genemodLayout.visibility = View.GONE
+                resistanceLayout.visibility = View.GONE
+                otherTypeLayout.visibility = View.VISIBLE
+                otherGenemodLayout.visibility = View.VISIBLE
+                primaryResistanceLayout.visibility = View.VISIBLE
+                locationLayout.visibility = View.GONE
+
+                // Getting the otherType filter
+                var tempText = otherTypeFilter.text.toString()
+                val otherTypeSettings = tempText.takeIf {
+                    it.isNotEmpty() && uniqueOtherTypes.contains(it)
+                } ?: "INVALID"
+
+                // Getting the otherGenemod filter
+                tempText = otherGenemodFilter.text.toString()
+                val otherGenemodSettings = tempText.takeIf {
+                    it.isNotEmpty() && uniqueOtherGenemods.contains(it)
+                } ?: "INVALID"
+
+                // Getting the primaryResistance filter
+                tempText = primaryResistanceFilter.text.toString()
+                val primaryResistanceSettings = tempText.takeIf {
+                    it.isNotEmpty() && uniquePrimaryResistances.contains(it)
+                } ?: "INVALID"
+
+                // Filtering the list of possible cells
+                val newList = ArrayList<String>()
+                targetAdapter!!.clear()
+                targetAdapter!!.notifyDataSetChanged()
+                for (item in cellsList) {
+                    val typeMatch = getType(item) == "5"
+                    val otherTypeMatch = (getCellType(item) == (getSubKey("otherType", otherTypeSettings) ?: "")) || otherTypeSettings == "INVALID"
+                    val otherGenemodMatch = (getGenemod(item) == (getSubKey("otherGenemod", otherGenemodSettings) ?: "")) || otherGenemodSettings == "INVALID"
+                    val primaryResistanceMatch = (getResistance(item) == (getSubKey("primaryResistance", primaryResistanceSettings) ?: "")) || primaryResistanceSettings == "INVALID"
+
+                    if (typeMatch && otherTypeMatch && otherGenemodMatch && primaryResistanceMatch) {
+                        newList.add(item)
+                        targetAdapter!!.add(processEpc(item))
+                    }
+                }
+
+                mTargetTagEditText.dropDownHeight = (60 * displayDensity).toInt() * minOf(newList.size, 7)
+
+                // Updating the list of tags in the dropdown box
+                targetAdapter!!.notifyDataSetChanged()
+            } else if (typeFilter.text.toString() == "Basic") {
+                genotypeLayout.visibility = View.GONE
+                distNumLayout.visibility = View.GONE
+                surfaceLayout.visibility = View.GONE
+                cellTypeLayout.visibility = View.GONE
+                genemodLayout.visibility = View.GONE
+                resistanceLayout.visibility = View.GONE
+                otherTypeLayout.visibility = View.GONE
+                otherGenemodLayout.visibility = View.GONE
+                primaryResistanceLayout.visibility = View.GONE
+                locationLayout.visibility = View.VISIBLE
+
+                // Getting the otherType filter
+                var tempText = locationFilter.text.toString()
+                val locationSettings = tempText.takeIf {
+                    it.isNotEmpty() && uniqueLocations.contains(it)
+                } ?: "INVALID"
+
+
+                // Filtering the list of possible cells
+                val newList = ArrayList<String>()
+                targetAdapter!!.clear()
+                targetAdapter!!.notifyDataSetChanged()
+                for (item in cellsList) {
+                    val typeMatch = getType(item) == "6"
+                    val locationMatch = (getLocation(item) == (getSubKey("location", locationSettings) ?: "")) || locationSettings == "INVALID"
+
+                    if (typeMatch && locationMatch) {
+                        newList.add(item)
+                        targetAdapter!!.add(processEpc(item))
+                    }
+                }
+
+                mTargetTagEditText.dropDownHeight = (60 * displayDensity).toInt() * minOf(newList.size, 7)
+
+                // Updating the list of tags in the dropdown box
+                targetAdapter!!.notifyDataSetChanged()
             } else {
                 targetAdapter!!.clear()
                 targetAdapter!!.addAll(cellsList)
@@ -709,6 +985,22 @@ class TagFinderFragment : Fragment() {
     private fun getCellType(ascii: String): String { return ascii.elementAt(1).toString() }
     private fun getGenemod(ascii: String): String { return ascii.elementAt(2).toString() }
     private fun getResistance(ascii: String): String { return ascii.elementAt(5).toString() }
+    private fun getLocation(ascii: String): String {
+        for (item in basicItemsList) {
+            if (item.id == ascii && item.location != null) {
+                return item.location
+            }
+        }
+        return ""
+    }
+    private fun getName(ascii: String): String {
+        for (item in basicItemsList) {
+            if (item.id == ascii && item.name != null) {
+                return item.name
+            }
+        }
+        return ""
+    }
 
     // Function to get the key for a value in the substitutions
     private fun getSubKey(field: String, findValue: String): String? {

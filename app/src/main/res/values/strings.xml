@@ -65,4 +65,6 @@
     <string name="tag_strain_value">---tag strain value---</string>
     <string name="tag_other_genemod_value">---tag other genemod value---</string>
     <string name="tag_other_type_value">--tag other type value---</string>
+    <string name="well_count">Well Count:</string>
+    <string name="cell_count">Cell Count:</string>
 </resources>

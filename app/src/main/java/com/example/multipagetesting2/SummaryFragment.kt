@@ -117,6 +117,7 @@ class SummaryFragment : Fragment() {
     private lateinit var antibioticsBox: LinearLayout
     private lateinit var tagWellCount: TextView
     private lateinit var wellCountBox: LinearLayout
+    private lateinit var wellCountTitle: TextView
     private lateinit var tagCreated: TextView
     private lateinit var createdOnBox: LinearLayout
     private lateinit var tagFrozen: TextView
@@ -240,6 +241,7 @@ class SummaryFragment : Fragment() {
         antibioticsBox = binding.anitbioticsBox
         tagWellCount = binding.tagWellCount
         wellCountBox = binding.wellCountBox
+        wellCountTitle = binding.wellCountTitle
         tagCreated = binding.tagCreated
         createdOnBox = binding.createdOnBox
         tagFrozen = binding.tagFreeze
@@ -408,6 +410,7 @@ class SummaryFragment : Fragment() {
         antibioticsBox.visibility = View.GONE
         tagWellCount.text = ContextCompat.getString(requireContext(), R.string.tag_well_count)
         wellCountBox.visibility = View.GONE
+        wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.well_count)
         tagCreated.text = ContextCompat.getString(requireContext(), R.string.tag_created_value)
         createdOnBox.visibility = View.GONE
         tagFrozen.text = ContextCompat.getString(requireContext(), R.string.tag_frozen_on_value)
@@ -583,9 +586,18 @@ class SummaryFragment : Fragment() {
                         ?.toString()
                     // If the value was given by the API (meaning it wasnt empty or null in the database)
                     if (givenText != null) {
+                        var displayText = givenText.toString()
+                        // Any special cases can be handled here like well count
+                        if (field == "wellCount" && tagType.text.toString().startsWith("frozen", true)) {
+                            displayText = (displayText.toInt()/1000000).toString() + "M"
+                            wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.cell_count)
+                        } else if (field == "wellCount") {
+                            wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.well_count)
+                        }
+
                         // Make the text item visible as it has a valid thing to show
                         box.visibility = View.VISIBLE
-                        text.setText(regex.replace(text.text, givenText.toString()))
+                        text.setText(regex.replace(text.text, displayText))
                     }
                 }
             }
