@@ -7,7 +7,6 @@ import com.google.gson.*
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
 import java.time.LocalDateTime
-import java.util.Locale
 import java.util.zip.CRC32
 
 private class LocalDateTimeSerializer : JsonSerializer<LocalDateTime> {
@@ -76,7 +75,7 @@ fun isQueueEmpty(context: Context): Boolean {
 
 // Function to convert the given hex value to ascii (and leave the unique as hex)
 fun hexToTagAscii(hex: String?): String {
-    Log.d("KillViewModel", "The given hex: $hex")
+    Log.d("utilCode", "The given hex: $hex")
     if (hex.isNullOrEmpty()) {
         return ""
     }
@@ -125,6 +124,11 @@ fun hexToTagAscii(hex: String?): String {
                     unique
         }  else if (hex.startsWith("66")) { // Basic items
             return hexIn
+        } else if (type == "7") { // Mucus Sample
+            val toConvert = hexIn.dropLast(4)
+            val unique = hexIn.takeLast(4)
+            return hexToAscii(toConvert) +
+                    unique
         } else {
             return ""
         }
@@ -141,7 +145,7 @@ fun hexToTagAscii(hex: String?): String {
 
 // Function to convert the given ascii value to hex assuming its in tag format
 fun tagAsciiToHex(asciiStr: String): String {
-    Log.d("KillViewModel", "$asciiStr to hex")
+    Log.d("utilCode", "$asciiStr to hex")
     try {
         val type = asciiStr.first().toString()
         if (type == "1" || type == "3") {
@@ -171,6 +175,11 @@ fun tagAsciiToHex(asciiStr: String): String {
                     unique
         }  else if (type == "6") {
             return asciiStr
+        } else if (type == "7") {
+            val toConvert = asciiStr.dropLast(4)
+            val unique = asciiStr.takeLast(4)
+            return asciiToHex(toConvert) +
+                    unique
         } else {
             return ""
         }
@@ -248,8 +257,31 @@ fun asciiToCrc32(values: List<String>): String {
 }
 
 // Function to check is ascii is correct length for one of the types
-fun isCorrectLen(cellID: String): Boolean {
-    return intArrayOf(14, 15, 16, 24).contains(cellID.length)
+fun isValidLength(asciiEPC: String): Boolean {
+    return intArrayOf(14,16).contains(asciiEPC.length)
+}
+
+fun isValidCharacters(asciiEPC: String): Boolean {
+    return asciiEPC.all { it.isLetterOrDigit() || it.isWhitespace() || it == '-' } && asciiEPC.isNotEmpty()
+}
+
+private val validTypeHex = arrayListOf("31", "32", "33", "34", "35", "66", "37")
+private val validTypeNumbers = arrayListOf("1", "2", "3", "4", "5", "6", "7")
+fun isValidType(asciiEPC: String): Boolean {
+    if (asciiEPC.length == 24) { // If the value given was hex
+        return validTypeHex.contains(asciiEPC.substring(0,2))
+    } else {
+        return validTypeNumbers.contains(asciiEPC.substring(0,1))
+    }
+}
+
+fun isValidAsciiID(asciiEPC: String): Boolean {
+    return isValidLength(asciiEPC) &&
+            isValidCharacters(asciiEPC) &&
+            isValidType(asciiEPC) &&
+            asciiEPC.takeLast(4).all { char -> char in '0'..'9' || char in 'a'..'f' || char in 'A'..'F'}
+
+
 }
 
 // Function to create the ascii representation of a cell item
@@ -262,6 +294,8 @@ fun reprCell(givenItem: CellItem): String {
         return givenItem.type + givenItem.otherType + givenItem.otherGenemod + givenItem.gene1 + givenItem.gene2 + givenItem.primaryResistance + givenItem.vectorResistance + givenItem.clone + "-" + givenItem.number + givenItem.unique
     } else if (givenItem.type.equals("6")) {
         return givenItem.id ?: ""
+    } else if (givenItem.type.equals("7")) {
+        return givenItem.type + givenItem.cellType + givenItem.source + givenItem.genemod + givenItem.gene1 + givenItem.gene2 + givenItem.media + givenItem.supplements + givenItem.owner + givenItem.unique
     }
     return ""
 }
@@ -311,6 +345,19 @@ fun cellFromEPC(cellID: String): CellItem {
         // Add the parts of a basic item
         foundParts.put("id", cellID)
         foundParts.put("type", "6")
+    } else if (cellID.startsWith("7")) {
+        // Add the parts of an immortal cell
+        foundParts.put("id", cellID.substring(cellID.length-7))
+        foundParts.put("type", cellID.substring(0, 1))
+        foundParts.put("cellType", cellID.substring(1, 2))
+        foundParts.put("source", cellID.substring(2, 3))
+        foundParts.put("genemod", cellID.substring(3, 4))
+        foundParts.put("gene1", cellID.substring(4, 5))
+        foundParts.put("gene2", cellID.substring(5, 6))
+        foundParts.put("media", cellID.substring(6, 8))
+        foundParts.put("supplements", cellID.substring(8, 9))
+        foundParts.put("owner", cellID.substring(9, 10))
+        foundParts.put("unique", cellID.substring(10))
     }
     return CellItem(
         id = foundParts.get("id"),
@@ -320,7 +367,7 @@ fun cellFromEPC(cellID: String): CellItem {
         year = foundParts.get("year"),
         owner = foundParts.get("owner"),
         cellType = foundParts.get("cellType"),
-        genemod = foundParts.get("geneMod"),
+        genemod = foundParts.get("genemod"),
         gene1 = foundParts.get("gene1"),
         gene2 = foundParts.get("gene2"),
         resistance = foundParts.get("resistance"),
@@ -332,7 +379,9 @@ fun cellFromEPC(cellID: String): CellItem {
         passage = foundParts.get("passage"),
         surface = foundParts.get("surface"),
         number = foundParts.get("number"),
-        unique = foundParts.get("unique"))
+        unique = foundParts.get("unique"),
+        source = foundParts.get("source"),
+        supplements = foundParts.get("supplements"))
 }
 
 fun toNormalCase(camelCaseString: String): String {

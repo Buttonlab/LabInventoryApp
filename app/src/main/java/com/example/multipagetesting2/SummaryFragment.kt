@@ -73,6 +73,8 @@ class SummaryFragment : Fragment() {
     private lateinit var cellTypeBox: LinearLayout
     private lateinit var tagGenemod: TextView
     private lateinit var genemodBox: LinearLayout
+    private lateinit var tagSource: TextView
+    private lateinit var sourceBox: LinearLayout
     private lateinit var tagOtherType: TextView
     private lateinit var otherTypeBox: LinearLayout
     private lateinit var tagOtherGenemod: TextView
@@ -111,17 +113,25 @@ class SummaryFragment : Fragment() {
     private lateinit var supportQuantityBox: LinearLayout
     private lateinit var tagMedia: TextView
     private lateinit var mediaBox: LinearLayout
-    private lateinit var tagMediaSupplements: TextView
-    private lateinit var mediaSupplementsBox: LinearLayout
+    private lateinit var tagSupplements: TextView
+    private lateinit var supplementsBox: LinearLayout
     private lateinit var tagAntibiotics: TextView
     private lateinit var antibioticsBox: LinearLayout
     private lateinit var tagWellCount: TextView
     private lateinit var wellCountBox: LinearLayout
     private lateinit var wellCountTitle: TextView
+    private lateinit var tagVialCount: TextView
+    private lateinit var vialCountBox: LinearLayout
+    private lateinit var tagMucusQuantity: TextView
+    private lateinit var mucusQuantityBox: LinearLayout
+    private lateinit var tagMucusConcentration: TextView
+    private lateinit var mucusConcentrationBox: LinearLayout
     private lateinit var tagCreated: TextView
     private lateinit var createdOnBox: LinearLayout
     private lateinit var tagFrozen: TextView
     private lateinit var frozenBox: LinearLayout
+    private lateinit var tagHarvestDate: TextView
+    private lateinit var harvestDateBox: LinearLayout
     private lateinit var tagStrain: TextView
     private lateinit var strainBox: LinearLayout
     private lateinit var tagParentalPlasmid: TextView
@@ -197,6 +207,8 @@ class SummaryFragment : Fragment() {
         cellTypeBox = binding.cellTypeBox
         tagGenemod = binding.tagGenemod
         genemodBox = binding.genemodBox
+        tagSource = binding.tagSource
+        sourceBox = binding.sourceBox
         tagOtherType = binding.tagOtherType
         otherTypeBox = binding.otherTypeBox
         tagOtherGenemod = binding.tagOtherGenemod
@@ -235,17 +247,25 @@ class SummaryFragment : Fragment() {
         supportQuantityBox = binding.supportQuantityBox
         tagMedia = binding.tagMedia
         mediaBox = binding.mediaBox
-        tagMediaSupplements = binding.tagMediaSupplements
-        mediaSupplementsBox = binding.mediaSupplementsBox
+        tagSupplements = binding.tagSupplements
+        supplementsBox = binding.supplementsBox
         tagAntibiotics = binding.tagAntibiotics
         antibioticsBox = binding.anitbioticsBox
         tagWellCount = binding.tagWellCount
         wellCountBox = binding.wellCountBox
         wellCountTitle = binding.wellCountTitle
+        tagVialCount = binding.tagVialCount
+        vialCountBox = binding.vialCountBox
+        tagMucusQuantity = binding.tagMucusQuantity
+        mucusQuantityBox = binding.mucusQuantityBox
+        tagMucusConcentration = binding.tagMucusConcentration
+        mucusConcentrationBox = binding.mucusConcentrationBox
         tagCreated = binding.tagCreated
         createdOnBox = binding.createdOnBox
         tagFrozen = binding.tagFreeze
         frozenBox = binding.freezeBox
+        tagHarvestDate = binding.tagHarvestDate
+        harvestDateBox = binding.harvestDateBox
         tagStrain = binding.tagStrain
         strainBox = binding.strainBox
         tagParentalPlasmid = binding.tagParentalPlasmid
@@ -368,6 +388,8 @@ class SummaryFragment : Fragment() {
         cellTypeBox.visibility = View.GONE
         tagGenemod.text = ContextCompat.getString(requireContext(), R.string.tag_genemod_value)
         genemodBox.visibility = View.GONE
+        tagSource.text = ContextCompat.getString(requireContext(), R.string.tag_source_value)
+        sourceBox.visibility = View.GONE
         tagOtherType.text = ContextCompat.getString(requireContext(), R.string.tag_other_type_value)
         otherTypeBox.visibility = View.GONE
         tagOtherGenemod.text = ContextCompat.getString(requireContext(), R.string.tag_other_genemod_value)
@@ -404,17 +426,25 @@ class SummaryFragment : Fragment() {
         supportQuantityBox.visibility = View.GONE
         tagMedia.text = ContextCompat.getString(requireContext(), R.string.tag_media_value)
         mediaBox.visibility = View.GONE
-        tagMediaSupplements.text = ContextCompat.getString(requireContext(), R.string.tag_media_supl_value)
-        mediaSupplementsBox.visibility = View.GONE
+        tagSupplements.text = ContextCompat.getString(requireContext(), R.string.tag_media_supl_value)
+        supplementsBox.visibility = View.GONE
         tagAntibiotics.text = ContextCompat.getString(requireContext(), R.string.tag_antibiotics_value)
         antibioticsBox.visibility = View.GONE
         tagWellCount.text = ContextCompat.getString(requireContext(), R.string.tag_well_count)
         wellCountBox.visibility = View.GONE
         wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.well_count)
+        tagVialCount.text = ContextCompat.getString(requireContext(), R.string.tag_vial_count_value)
+        vialCountBox.visibility = View.GONE
+        tagMucusQuantity.text = ContextCompat.getString(requireContext(), R.string.tag_mucus_quantity_value)
+        mucusQuantityBox.visibility = View.GONE
+        tagMucusConcentration.text = ContextCompat.getString(requireContext(), R.string.tag_mucus_concentration_value)
+        mucusConcentrationBox.visibility = View.GONE
         tagCreated.text = ContextCompat.getString(requireContext(), R.string.tag_created_value)
         createdOnBox.visibility = View.GONE
         tagFrozen.text = ContextCompat.getString(requireContext(), R.string.tag_frozen_on_value)
         frozenBox.visibility = View.GONE
+        tagHarvestDate.text = ContextCompat.getString(requireContext(), R.string.tag_harvest_date_value)
+        harvestDateBox.visibility = View.GONE
         tagStrain.text = ContextCompat.getString(requireContext(), R.string.tag_strain_value)
         strainBox.visibility = View.GONE
         tagParentalPlasmid.text = ContextCompat.getString(requireContext(), R.string.tag_parental_plasmid_value)
@@ -507,6 +537,7 @@ class SummaryFragment : Fragment() {
                 Triple(distNumBox, tagDistNum, "distNum"),
                 Triple(cellTypeBox, tagCellType, "cellType"),
                 Triple(genemodBox, tagGenemod, "genemod"),
+                Triple(sourceBox, tagSource, "source"),
                 Triple(otherTypeBox, tagOtherType, "otherType"),
                 Triple(otherGenemodBox, tagOtherGenemod, "otherGenemod"),
                 Triple(gene1Box, tagGene1, "gene1"),
@@ -526,11 +557,15 @@ class SummaryFragment : Fragment() {
                 Triple(specificLocationBox, tagSpecificLocation, "specificLocation"),
                 Triple(supportQuantityBox, tagSupportQuantity, "supportQuantity"),
                 Triple(mediaBox, tagMedia, "media"),
-                Triple(mediaSupplementsBox, tagMediaSupplements, "mediaSupplements"),
+                Triple(supplementsBox, tagSupplements, "supplements"),
                 Triple(antibioticsBox, tagAntibiotics, "antibiotics"),
                 Triple(wellCountBox, tagWellCount, "wellCount"),
+                Triple(vialCountBox, tagVialCount, "vialCount"),
+                Triple(mucusQuantityBox, tagMucusQuantity, "mucusQuantity"),
+                Triple(mucusConcentrationBox, tagMucusConcentration, "mucusConcentration"),
                 Triple(createdOnBox, tagCreated, "creationDate"),
                 Triple(frozenBox, tagFrozen, "freezeDate"),
+                Triple(harvestDateBox, tagHarvestDate, "harvestDate"),
                 Triple(strainBox, tagStrain, "strain"),
                 Triple(parentalPlasmidBox, tagPrimaryResistance, "parentalPlasmid"),
                 Triple(primerBox, tagPrimer, "primer"),
@@ -613,7 +648,7 @@ class SummaryFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
             // Runs this when the user stops changing the text field
             val text = s.toString()
-            if (isCorrectLen(text)) {
+            if (isValidLength(text)) {
                 resetUI()
                 tagHex.setText(tagAsciiToHex(text))
                 tagAscii.setText(text)

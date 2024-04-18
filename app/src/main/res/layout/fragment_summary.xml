@@ -231,6 +231,28 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/sourceBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Source: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagSource"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_source_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/otherTypeBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -652,7 +674,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/mediaSupplementsBox"
+                    android:id="@+id/supplementsBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -665,7 +687,7 @@
                         android:textAlignment="center"
                         android:textSize="26sp" />
                     <TextView
-                        android:id="@+id/tagMediaSupplements"
+                        android:id="@+id/tagSupplements"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/tag_media_supl_value"
@@ -719,6 +741,75 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/vialCountBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/vialCountTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Vial Count: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagVialCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_vial_count_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/mucusQuantityBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/mucusQuantityTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mucus Quantity: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagMucusQuantity"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_mucus_quantity_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/mucusConcentrationBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:id="@+id/mucusConcentrationTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Mucus Concentration: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagMucusConcentration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_mucus_concentration_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
                     android:id="@+id/createdOnBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -758,6 +849,28 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/tag_frozen_on_value"
+                        android:textAlignment="center"
+                        android:textSize="20sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/harvestDateBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Harvest Date: "
+                        android:textAlignment="center"
+                        android:textSize="26sp" />
+                    <TextView
+                        android:id="@+id/tagHarvestDate"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tag_harvest_date_value"
                         android:textAlignment="center"
                         android:textSize="20sp" />
                 </LinearLayout>

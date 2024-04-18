@@ -123,6 +123,12 @@ class TagFinderFragment : Fragment() {
     private lateinit var locationClear: ImageButton
     private lateinit var locationDropdown: ImageButton
 
+    // The source text field and dropdown button
+    private lateinit var sourceLayout: LinearLayout
+    private lateinit var sourceFilter: AutoCompleteTextView
+    private lateinit var sourceClear: ImageButton
+    private lateinit var sourceDropdown: ImageButton
+
     // Holding the response of the API call
     private var uniqueGenotypes: ArrayList<String> = arrayListOf()
     private var uniqueDistNums :ArrayList<String> = arrayListOf()
@@ -134,6 +140,7 @@ class TagFinderFragment : Fragment() {
     private var uniqueOtherGenemods :ArrayList<String> = arrayListOf()
     private var uniquePrimaryResistances :ArrayList<String> = arrayListOf()
     private var uniqueLocations :ArrayList<String> = arrayListOf()
+    private var uniqueSources :ArrayList<String> = arrayListOf()
 
     // Adapter for the main target dropdown
     private var targetAdapter: ArrayAdapter<String>? = null
@@ -309,7 +316,7 @@ class TagFinderFragment : Fragment() {
         primaryResistanceDropdown = binding.primaryResistanceDropdown
         primaryResistanceDropdown.setOnClickListener { primaryResistanceFilter.showDropDown() }
 
-        // Setup for the resistance filter
+        // Setup for the location filter
         locationLayout = binding.locationLayout
         locationLayout.visibility = View.GONE
         locationFilter = binding.locationFilter
@@ -318,6 +325,16 @@ class TagFinderFragment : Fragment() {
         locationClear.setOnClickListener { locationFilter.text.clear() }
         locationDropdown = binding.locationDropdown
         locationDropdown.setOnClickListener { locationFilter.showDropDown() }
+
+        // Setup for the source filter
+        sourceLayout = binding.sourceLayout
+        sourceLayout.visibility = View.GONE
+        sourceFilter = binding.sourceFilter
+        sourceFilter.addTextChangedListener(filterTextChangedListener)
+        sourceClear = binding.sourceClear
+        sourceClear.setOnClickListener { sourceFilter.text.clear() }
+        sourceDropdown = binding.sourceDropdown
+        sourceDropdown.setOnClickListener { sourceFilter.showDropDown() }
 
         // Check for API
         viewLifecycleOwner.lifecycleScope.launch {
@@ -430,7 +447,7 @@ class TagFinderFragment : Fragment() {
                     viewModel.setTargetTagEpc(rawEpc)
                     viewModel.updateTarget()
                 }
-            } else if (isCorrectLen(text)) { // This means the user has typed or pasted some text
+            } else if (isValidLength(text)) { // This means the user has typed or pasted some text
                 viewModel.setTargetTagEpc(text)
                 viewModel.updateTarget()
             }
@@ -502,6 +519,21 @@ class TagFinderFragment : Fragment() {
                 val name = getName(tagText)
                 val lineLen = minOf(name.length-1, 25)
                 textVisible = name.substring(0,lineLen) + (if (name.length-1 > 25) name.substring(26) else "")
+            }catch (e: Exception) {
+                textVisible = "$tagText   ERROR!"
+            }
+
+        } else if (tagText.first().equals('7')) {
+            try {
+                val cellType = substitutions?.subs?.get("cellType")?.get(tagText.substring(1,2)) ?: tagText.substring(1,2)
+                val source = substitutions?.subs?.get("source")?.get(tagText.substring(2,3)) ?: tagText.substring(2,3)
+                val genemod = substitutions?.subs?.get("genemod")?.get(tagText.substring(3,4)) ?: tagText.substring(3,4)
+                val gene1 = substitutions?.subs?.get("gene1")?.get(tagText.substring(4,5)) ?: tagText.substring(4,5)
+                val gene2 = substitutions?.subs?.get("gene2")?.get(tagText.substring(5,6)) ?: tagText.substring(5,6)
+                val media = substitutions?.subs?.get("media")?.get(tagText.substring(6,8)) ?: tagText.substring(6,8)
+                val supplements = substitutions?.subs?.get("supplements")?.get(tagText.substring(8,9)) ?: tagText.substring(8,9)
+                val owner = substitutions?.subs?.get("media")?.get(tagText.substring(9,10)) ?: tagText.substring(9,10)
+                textVisible = "$cellType    $genemod    $gene1    $gene2\n$source    $media    ${supplements}    ${owner}"
             }catch (e: Exception) {
                 textVisible = "$tagText   ERROR!"
             }
@@ -630,17 +662,17 @@ class TagFinderFragment : Fragment() {
                                 val surface = substitutions?.subs?.get("surface")?.get(item.substring(8,9)) ?: item.substring(8,9)
                                 if (!uniqueSurfaces.contains(surface)) uniqueSurfaces.add(surface)
                             } else if (type == "2" || type == "4") { // If the cell is immortal
-                                val otherType = substitutions?.subs?.get("cellType")?.get(item.elementAt(1).toString()) ?: item.elementAt(1).toString()
-                                if (!uniqueCellTypes.contains(otherType)) uniqueCellTypes.add(otherType)
-                                val otherGenemod = substitutions?.subs?.get("otherGenemod")?.get(item.elementAt(2).toString()) ?: item.elementAt(2).toString()
-                                if (!uniqueGenemods.contains(otherGenemod)) uniqueGenemods.add(otherGenemod)
+                                val cellType = substitutions?.subs?.get("cellType")?.get(item.elementAt(1).toString()) ?: item.elementAt(1).toString()
+                                if (!uniqueCellTypes.contains(cellType)) uniqueCellTypes.add(cellType)
+                                val genemod = substitutions?.subs?.get("genemod")?.get(item.elementAt(2).toString()) ?: item.elementAt(2).toString()
+                                if (!uniqueGenemods.contains(genemod)) uniqueGenemods.add(genemod)
                                 val resistance = substitutions?.subs?.get("resistance")?.get(item.elementAt(5).toString()) ?: item.elementAt(5).toString()
                                 if (!uniqueResistances.contains(resistance)) uniqueResistances.add(resistance)
                             } else if (type == "5") { // If the cell is other
-                                val cellType = substitutions?.subs?.get("otherType")?.get(item.elementAt(1).toString()) ?: item.elementAt(1).toString()
-                                if (!uniqueOtherTypes.contains(cellType)) uniqueOtherTypes.add(cellType)
-                                val genemod = substitutions?.subs?.get("otherGenemod")?.get(item.elementAt(2).toString()) ?: item.elementAt(2).toString()
-                                if (!uniqueOtherGenemods.contains(genemod)) uniqueOtherGenemods.add(genemod)
+                                val otherType = substitutions?.subs?.get("otherType")?.get(item.elementAt(1).toString()) ?: item.elementAt(1).toString()
+                                if (!uniqueOtherTypes.contains(otherType)) uniqueOtherTypes.add(otherType)
+                                val otherGenemod = substitutions?.subs?.get("otherGenemod")?.get(item.elementAt(2).toString()) ?: item.elementAt(2).toString()
+                                if (!uniqueOtherGenemods.contains(otherGenemod)) uniqueOtherGenemods.add(otherGenemod)
                                 val primaryResistance = substitutions?.subs?.get("primaryResistance")?.get(item.elementAt(5).toString()) ?: item.elementAt(5).toString()
                                 if (!uniquePrimaryResistances.contains(primaryResistance)) uniquePrimaryResistances.add(primaryResistance)
                             } else if (type == "6") {
@@ -655,6 +687,13 @@ class TagFinderFragment : Fragment() {
                                         }
                                     }
                                 }
+                            } else if (type == "7") { // If the item is a mucus sample
+                                val cellType = substitutions?.subs?.get("cellType")?.get(item.elementAt(1).toString()) ?: item.elementAt(1).toString()
+                                if (!uniqueCellTypes.contains(cellType)) uniqueCellTypes.add(cellType)
+                                val source = substitutions?.subs?.get("source")?.get(item.elementAt(2).toString()) ?: item.elementAt(2).toString()
+                                if (!uniqueSources.contains(source)) uniqueSources.add(source)
+                                val genemod = substitutions?.subs?.get("genemod")?.get(item.elementAt(3).toString()) ?: item.elementAt(3).toString()
+                                if (!uniqueGenemods.contains(genemod)) uniqueGenemods.add(genemod)
                             }
                         }
 
@@ -706,6 +745,15 @@ class TagFinderFragment : Fragment() {
                         )
                         cellTypeFilter.setAdapter(cellTypeAdapter)
                         cellTypeAdapter.notifyDataSetChanged()
+
+                        uniqueSources.sort()
+                        val sourceAdapter = ArrayAdapter(
+                            requireContext(),
+                            R.layout.dropdown_item,
+                            uniqueSources
+                        )
+                        sourceFilter.setAdapter(sourceAdapter)
+                        sourceAdapter.notifyDataSetChanged()
 
                         uniqueGenemods.sort()
                         val genemodAdapter = ArrayAdapter(
@@ -791,6 +839,7 @@ class TagFinderFragment : Fragment() {
                 otherGenemodLayout.visibility = View.GONE
                 primaryResistanceLayout.visibility = View.GONE
                 locationLayout.visibility = View.GONE
+                sourceLayout.visibility = View.GONE
 
                 // Getting the genotype filter
                 var tempText = genotypeFilter.text.toString()
@@ -843,6 +892,7 @@ class TagFinderFragment : Fragment() {
                 otherGenemodLayout.visibility = View.GONE
                 primaryResistanceLayout.visibility = View.GONE
                 locationLayout.visibility = View.GONE
+                sourceLayout.visibility = View.GONE
 
                 // Getting the cellType filter
                 var tempText = cellTypeFilter.text.toString()
@@ -893,6 +943,7 @@ class TagFinderFragment : Fragment() {
                 otherGenemodLayout.visibility = View.VISIBLE
                 primaryResistanceLayout.visibility = View.VISIBLE
                 locationLayout.visibility = View.GONE
+                sourceLayout.visibility = View.GONE
 
                 // Getting the otherType filter
                 var tempText = otherTypeFilter.text.toString()
@@ -943,6 +994,7 @@ class TagFinderFragment : Fragment() {
                 otherGenemodLayout.visibility = View.GONE
                 primaryResistanceLayout.visibility = View.GONE
                 locationLayout.visibility = View.VISIBLE
+                sourceLayout.visibility = View.GONE
 
                 // Getting the otherType filter
                 var tempText = locationFilter.text.toString()
@@ -960,6 +1012,57 @@ class TagFinderFragment : Fragment() {
                     val locationMatch = (getLocation(item) == (getSubKey("location", locationSettings) ?: "")) || locationSettings == "INVALID"
 
                     if (typeMatch && locationMatch) {
+                        newList.add(item)
+                        targetAdapter!!.add(processEpc(item))
+                    }
+                }
+
+                mTargetTagEditText.dropDownHeight = (60 * displayDensity).toInt() * minOf(newList.size, 7)
+
+                // Updating the list of tags in the dropdown box
+                targetAdapter!!.notifyDataSetChanged()
+            } else if (typeFilter.text.toString() == "Immortal") {
+                genotypeLayout.visibility = View.GONE
+                distNumLayout.visibility = View.GONE
+                surfaceLayout.visibility = View.GONE
+                cellTypeLayout.visibility = View.VISIBLE
+                genemodLayout.visibility = View.VISIBLE
+                resistanceLayout.visibility = View.VISIBLE
+                otherTypeLayout.visibility = View.GONE
+                otherGenemodLayout.visibility = View.GONE
+                primaryResistanceLayout.visibility = View.GONE
+                locationLayout.visibility = View.GONE
+                sourceLayout.visibility = View.GONE
+
+                // Getting the cellType filter
+                var tempText = cellTypeFilter.text.toString()
+                val cellTypeSettings = tempText.takeIf {
+                    it.isNotEmpty() && uniqueCellTypes.contains(it)
+                } ?: "INVALID"
+
+                // Getting the source filter
+                tempText = sourceFilter.text.toString()
+                val sourceSettings = tempText.takeIf {
+                    it.isNotEmpty() && uniqueSources.contains(it)
+                } ?: "INVALID"
+
+                // Getting the genemod filter
+                tempText = genemodFilter.text.toString()
+                val genemodSettings = tempText.takeIf {
+                    it.isNotEmpty() && uniqueGenemods.contains(it)
+                } ?: "INVALID"
+
+                // Filtering the list of possible cells
+                val newList = ArrayList<String>()
+                targetAdapter!!.clear()
+                targetAdapter!!.notifyDataSetChanged()
+                for (item in cellsList) {
+                    val typeMatch = getType(item) == "7"
+                    val cellTypeMatch = (getCellType(item) == (getSubKey("cellType", cellTypeSettings) ?: "")) || cellTypeSettings == "INVALID"
+                    val sourceMatch = (getSource(item) == (getSubKey("source", sourceSettings) ?: "")) || sourceSettings == "INVALID"
+                    val genemodMatch = (getMucusGenemod(item) == (getSubKey("genemod", genemodSettings) ?: "")) || genemodSettings == "INVALID"
+
+                    if (typeMatch && cellTypeMatch && genemodMatch && sourceMatch) {
                         newList.add(item)
                         targetAdapter!!.add(processEpc(item))
                     }
@@ -1001,6 +1104,8 @@ class TagFinderFragment : Fragment() {
         }
         return ""
     }
+    private fun getSource(ascii: String): String { return ascii.elementAt(2).toString() }
+    private fun getMucusGenemod(ascii: String): String { return ascii.elementAt(3).toString() }
 
     // Function to get the key for a value in the substitutions
     private fun getSubKey(field: String, findValue: String): String? {

@@ -1,7 +1,5 @@
 package com.example.multipagetesting2
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,7 +19,6 @@ import com.uk.tsl.rfid.asciiprotocol.AsciiCommander
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.example.multipagetesting2.*
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -122,13 +119,13 @@ class InventoryFragment : Fragment() {
                         val splitMsg = message.split(":", limit = 2)
                         if (!(splitMsg[1].startsWith("21") && splitMsg[1].endsWith("21"))) { // Don't display location tags and stop if empty
                             val newMsg = hexToTagAscii(splitMsg[1])
-                            if (newMsg.all { (it.isLetterOrDigit() || it.isWhitespace()) } && newMsg.isNotEmpty()) { // Don't display a tag if it does not contain valid characters
+                            if (isValidAsciiID(newMsg)) { // Don't display a tag if it does not contain valid characters
 
                                 var inDB = true
                                 if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
                                     inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
                                 }
-                                if (newMsg.any { !it.isLetterOrDigit() || !it.isWhitespace() } && inDB && isCorrectLen(newMsg)) {
+                                if (newMsg.any { !it.isLetterOrDigit() || !it.isWhitespace() } && inDB && isValidLength(newMsg)) {
                                     addTagToList(newMsg)
                                 }
                             }

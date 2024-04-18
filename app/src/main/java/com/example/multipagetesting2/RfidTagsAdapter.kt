@@ -125,6 +125,17 @@ class RfidTagsAdapter(private val tags: ArrayList<CellItem>) : RecyclerView.Adap
             val name = cell.name ?: cell.id
 
             textVisible = "Basic Item:\n${name}"
+        } else if (cell.type.equals("7")) {
+            val cellType = substitutions?.subs?.get("cellType")?.get(cell.cellType) ?: cell.cellType ?: ""
+            val source = substitutions?.subs?.get("source")?.get(cell.source) ?: cell.source ?: ""
+            val genemod = substitutions?.subs?.get("genemod")?.get(cell.genemod) ?: cell.genemod ?: ""
+            val gene1 = substitutions?.subs?.get("gene1")?.get(cell.gene1) ?: cell.gene1 ?: ""
+            val gene2 = substitutions?.subs?.get("gene2")?.get(cell.gene2) ?: cell.gene2 ?: ""
+            val media = substitutions?.subs?.get("media")?.get(cell.media) ?: cell.media ?: ""
+            val supplements = cell.clone?.toInt(16) ?: ""
+            val owner = substitutions?.subs?.get("owner")?.get(cell.owner) ?: cell.owner ?: ""
+
+            textVisible = "$cellType    $genemod   $gene1   $gene2\n$source    $media    $supplements    ${owner}"
         } else {
             textVisible = "ERROR: Invalid type"
         }

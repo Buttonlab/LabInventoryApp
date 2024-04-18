@@ -114,6 +114,7 @@ class ApiQueueFragment : Fragment() {
                 withContext(Dispatchers.Main) { resetUI() }
 
                 // Getting the first request and adding it's information to the UI
+                Log.d("temp", "temp")
                 var request = advanceQueue()
 
                 // If the user taps approve

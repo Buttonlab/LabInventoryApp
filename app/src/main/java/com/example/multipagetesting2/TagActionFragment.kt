@@ -206,7 +206,7 @@ class TagActionFragment : Fragment() {
                                     if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
                                         inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
                                     }
-                                    if (isCorrectLen(newMsg) && inDB) {
+                                    if (isValidLength(newMsg) && inDB) {
                                         addTagToList(newMsg)
                                     }
                                 }
@@ -226,7 +226,7 @@ class TagActionFragment : Fragment() {
                                     if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
                                         inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
                                     }
-                                    if (isCorrectLen(newMsg) && inDB) {
+                                    if (isValidLength(newMsg) && inDB) {
                                         addTagToList(newMsg)
                                     }
 

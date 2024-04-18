@@ -67,4 +67,9 @@
     <string name="tag_other_type_value">--tag other type value---</string>
     <string name="well_count">Well Count:</string>
     <string name="cell_count">Cell Count:</string>
+    <string name="tag_source_value">---tag source value---</string>
+    <string name="tag_vial_count_value">---tag vial count value---</string>
+    <string name="tag_mucus_quantity_value">---tag mucus quantity value---</string>
+    <string name="tag_mucus_concentration_value">---tag mucus concentration value---</string>
+    <string name="tag_harvest_date_value">---tag harvest date value---</string>
 </resources>

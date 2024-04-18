@@ -13,7 +13,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.multipagetesting2.databinding.FragmentKillBinding
-import com.google.gson.Gson
 import com.uk.tsl.rfid.asciiprotocol.AsciiCommander
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -187,7 +186,7 @@ class KillFragment : Fragment() {
                     tagHex.setText(message)
                     tagAscii.setText(viewModel.hexToTagAscii(message))
                     cellID = viewModel.hexToTagAscii(message)
-                } else if (isCorrectLen(message)) {
+                } else if (isValidLength(message)) {
                     tagHex.setText(viewModel.tagAsciiToHex(message))
                     tagAscii.setText(message)
                     cellID = message

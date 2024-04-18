@@ -73,7 +73,7 @@ data class CellItem(
     val specificLocation: String? = null, // Only for Frozen Other
     val supportQuantity: String? = null,
     val media: String? = null,
-    val mediaSupplements: String? = null,
+    val supplements: String? = null,
     val antibiotics: String? = null,
     val wellCount: Int? = null,
     val creationDate: String? = null,
@@ -88,6 +88,11 @@ data class CellItem(
     val primer: String? = null, // Only for Frozen Other
     val name: String? = null,
     val notes: String? = null,
+    val source: String? = null,
+    val vialCount: Int? = null,
+    val mucusQuantity: Float? = null,
+    val mucusConcentration: Float? = null,
+    val harvestDate: String? = null,
     val parentCells: String? = null
 )
 
