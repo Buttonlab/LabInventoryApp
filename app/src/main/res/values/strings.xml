@@ -72,4 +72,5 @@
     <string name="tag_mucus_quantity_value">---tag mucus quantity value---</string>
     <string name="tag_mucus_concentration_value">---tag mucus concentration value---</string>
     <string name="tag_harvest_date_value">---tag harvest date value---</string>
+    <string name="failedLookupWarning">The scanned tag could not be found, if you are connected to the network it has likely been killed already!</string>
 </resources>

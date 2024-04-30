@@ -11,8 +11,6 @@ import com.uk.tsl.rfid.asciiprotocol.enumerations.TriState
 import com.uk.tsl.rfid.asciiprotocol.responders.IBarcodeReceivedDelegate
 import com.uk.tsl.rfid.asciiprotocol.responders.ITransponderReceivedDelegate
 import com.uk.tsl.rfid.asciiprotocol.responders.TransponderData
-import java.util.Locale
-import java.util.zip.CRC32
 
 class InventoryViewModel(): ViewModel() {
 

@@ -86,27 +86,7 @@
                         android:background="@color/white"
                         android:orientation="vertical">
                         <!-- The targets will be listed here -->
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="AA00 X Alex Button \n Psg:0  #1  On: 25cm² Plastic"
-                            android:textSize="26sp"
-                            android:gravity="center"
-                            android:background="@drawable/inv_item"/>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="AA00 X Alex Button \n Psg:0  #1  On: 25cm² Plastic"
-                            android:textSize="26sp"
-                            android:gravity="center"
-                            android:background="@drawable/inv_item"/>
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="AA00 X Alex Button \n Psg:0  #1  On: 25cm² Plastic"
-                            android:textSize="26sp"
-                            android:gravity="center"
-                            android:background="@drawable/inv_item"/>
+
 
                     </LinearLayout>
                 </LinearLayout>
@@ -130,24 +110,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:paddingLeft="15dp">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Media to UNC ALI"
-                            android:textSize="26sp"
-                            android:background="@color/white" />
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Owner to Brian Button"
-                            android:textSize="26sp"
-                            android:background="@color/white" />
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Last Feed to now"
-                            android:textSize="26sp"
-                            android:background="@color/white" />
 
                     </LinearLayout>
                 </LinearLayout>

@@ -14,6 +14,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.multipagetesting2.databinding.FragmentTagFinderBinding
@@ -35,6 +36,9 @@ class TagFinderFragment : Fragment() {
 
     // ViewModel containing code for interfacing with the reader
     private lateinit var viewModel: TagFinderViewModel
+
+    // Initialize the basic ViewModel
+    private val basicModel: BasicViewModel by activityViewModels()
 
     // The controller for the sounds
     private var soundPool: SoundPool? = null
@@ -189,7 +193,7 @@ class TagFinderFragment : Fragment() {
         viewModel.cleanup()
         viewModel.setEnabled(true)
 
-        // Setup for the epc text text field and dropdown
+        // Setup for the epc text field and dropdown
         mTargetTagEditText = binding.targetEPC
         mTargetTagEditText.addTextChangedListener(mTargetTagEditTextChangedListener)
         mTargetTagEditText.dropDownHeight = (40 * displayDensity).toInt() * 10
@@ -197,7 +201,6 @@ class TagFinderFragment : Fragment() {
         mTargetTagClear.setOnClickListener { mTargetTagEditText.text.clear() }
         mTargetTagDropdown = binding.epcDropdown
         mTargetTagDropdown.setOnClickListener { mTargetTagEditText.showDropDown() }
-
 
         // Setup for the signal strength display bars
         sBarC = binding.sBarC
@@ -215,7 +218,7 @@ class TagFinderFragment : Fragment() {
         typeClear.setOnClickListener { typeFilter.text.clear() }
         typeDropdown = binding.typeDropdown
         typeDropdown.setOnClickListener { typeFilter.showDropDown() }
-        val possibleTypes = arrayListOf("Primary", "Immortal", "Other", "Basic")
+        val possibleTypes = arrayListOf("Primary", "Immortal", "Mucus", "Other", "Basic")
         val typeAdapter = ArrayAdapter(
             requireContext(),
             R.layout.dropdown_item,
@@ -398,6 +401,33 @@ class TagFinderFragment : Fragment() {
         soundMedium = soundPool!!.load(context, R.raw.medium, 1)
         soundHigh = soundPool!!.load(context, R.raw.high, 1)
         soundHighest = soundPool!!.load(context, R.raw.highest, 1)
+
+        // Setup the power level toggle
+        val togglePwr = binding.togglePowerLevel
+        val colorOn = ContextCompat.getColor(requireContext(), R.color.carolinaBlue)
+        val colorOff = ContextCompat.getColor(requireContext(), R.color.basinSlate)
+        togglePwr.background.setTint(colorOn)
+        togglePwr.isChecked = false
+        togglePwr.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked) {
+                // If on High go to Low
+                if (getCommander() != null){
+                    viewModel.setPowerLevel(false)
+                    togglePwr.background.setTint(colorOff)
+                }
+            } else {
+                // If on Low go to High
+                if (getCommander() != null) {
+                    viewModel.setPowerLevel(true)
+                    togglePwr.background.setTint(colorOn)
+                }
+            }
+        }
+
+        // Triggering the text changed listener if the user had selected a tag
+        if (basicModel.getSelectedTag().isNotEmpty()) {
+            mTargetTagEditText.setText(basicModel.getSelectedTag())
+        }
 
         // Calling the API cells function
         loadCells()
@@ -1021,18 +1051,18 @@ class TagFinderFragment : Fragment() {
 
                 // Updating the list of tags in the dropdown box
                 targetAdapter!!.notifyDataSetChanged()
-            } else if (typeFilter.text.toString() == "Immortal") {
+            } else if (typeFilter.text.toString() == "Mucus") {
                 genotypeLayout.visibility = View.GONE
                 distNumLayout.visibility = View.GONE
                 surfaceLayout.visibility = View.GONE
                 cellTypeLayout.visibility = View.VISIBLE
+                sourceLayout.visibility = View.VISIBLE
                 genemodLayout.visibility = View.VISIBLE
-                resistanceLayout.visibility = View.VISIBLE
+                resistanceLayout.visibility = View.GONE
                 otherTypeLayout.visibility = View.GONE
                 otherGenemodLayout.visibility = View.GONE
                 primaryResistanceLayout.visibility = View.GONE
                 locationLayout.visibility = View.GONE
-                sourceLayout.visibility = View.GONE
 
                 // Getting the cellType filter
                 var tempText = cellTypeFilter.text.toString()

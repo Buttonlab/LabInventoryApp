@@ -13,6 +13,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.multipagetesting2.databinding.FragmentSummaryBinding
@@ -33,6 +34,9 @@ class SummaryFragment : Fragment() {
 
     // Creating an instance of the InventoryViewModel
     private lateinit var viewModel: InventoryViewModel
+
+    // Initialize the basic ViewModel
+    private val basicModel: BasicViewModel by activityViewModels()
 
     // The map that will store the given EPC and RSSI values
     private val epcRssiMap = mutableMapOf<String, Int>()
@@ -154,6 +158,7 @@ class SummaryFragment : Fragment() {
     private lateinit var notesBox: LinearLayout
 
     private lateinit var scanInstructions: TextView
+    private lateinit var failedLookupWarning: TextView
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentSummaryBinding.inflate(inflater, container, false)
@@ -288,6 +293,7 @@ class SummaryFragment : Fragment() {
         notesBox = binding.notesBox
 
         scanInstructions = binding.scanInstructions
+        failedLookupWarning = binding.failedLookupWarning
         resetUI()
 
         // Setup for the select tag field
@@ -349,6 +355,11 @@ class SummaryFragment : Fragment() {
         }
 
         loadCells()
+
+        // Setting the target if the user has made one
+        if (basicModel.getSelectedTag().isNotEmpty()) {
+            tagSelect.setText(basicModel.getSelectedTag())
+        }
     }
 
     override fun onDestroy() {
@@ -467,6 +478,7 @@ class SummaryFragment : Fragment() {
         notesBox.visibility = View.GONE
 
         scanInstructions.visibility = View.VISIBLE
+        failedLookupWarning.visibility = View.GONE
     }
 
     // Function that will handle the API call to get the cells from the live database
@@ -501,32 +513,29 @@ class SummaryFragment : Fragment() {
     private fun getCell(cellID: String) {
         // Add the info from the database
         viewLifecycleOwner.lifecycleScope.launch {
-            for (i in 1..2) {
-                try {
-                    Log.e("SummaryFragment", "Making the response")
-                    // Getting the cell info from the API
-                    val response = DataRepository.getCellByID(cellID)
-                    if (response.isSuccessful) {
-                        Log.e("SummaryFragment", "Got it: ${response.body()!!}")
-                        cellItem = response.body()!!
-                        withContext(Dispatchers.Main) {
-                            changeUI(cellItem!!)
-                        }
-                        break
-                    } else {
-                        cellItem = null
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Log.e("SummaryFragment", "Failing to get cell info")
-                    if (i < 2) delay(1000)
+            try {
+                Log.e("SummaryFragment", "Making the response")
+                // Getting the cell info from the API
+                val response = DataRepository.getCellByID(cellID)
+                if (response.isSuccessful) {
+                    Log.e("SummaryFragment", "Got it: ${response.body()!!}")
+                    cellItem = response.body()!!
+                } else {
+                    cellItem = null
                 }
+                withContext(Dispatchers.Main) {
+                    changeUI(cellItem)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("SummaryFragment", "Failing to get cell info")
             }
+
         }
     }
 
     // This is used to change all of the UI text elements for the cell item
-    private fun changeUI(cellItem: CellItem) {
+    private fun changeUI(cellItem: CellItem?) {
         scanInstructions.visibility = View.GONE
         if (substitutions != null && substitutions.subs != null) {
             // This contains all of the text elements used in the summary page and the field to look under for substitutions
@@ -578,64 +587,71 @@ class SummaryFragment : Fragment() {
                 Triple(notesBox, tagNotes, "notes"))
             val regex = "---(.*?)---".toRegex()
 
-            // Loop through all the pairs described above
-            for ((box, text, field) in summaryItems) {
-                Log.d("Substitution", "Checking for $field")
-                // This will run if there exists a substitution for the value
-                if (substitutions.subs.containsKey(field)) {
-                    // Get the value current field is set to eg. cellItem.type will be 1, 2, etc...
-                    val givenText = cellItem::class.memberProperties
-                        .firstOrNull {it.name.equals(field, ignoreCase = true)}
-                        ?.call(cellItem)
-                        ?.toString()
+            if (cellItem != null) {
+                failedLookupWarning.visibility = View.GONE
 
-                    Log.d("Substitution", "$field contains the text $givenText")
-                    // If the value was given by the API (meaning it wasnt empty or null in the database)
-                    if (givenText != null) {
-                        // Make the text item visible as it has a valid thing to show
-                        box.visibility = View.VISIBLE
+                // Loop through all the pairs described above
+                for ((box, text, field) in summaryItems) {
+                    Log.d("Substitution", "Checking for $field")
+                    // This will run if there exists a substitution for the value
+                    if (substitutions.subs.containsKey(field)) {
+                        // Get the value current field is set to eg. cellItem.type will be 1, 2, etc...
+                        val givenText = cellItem::class.memberProperties
+                            .firstOrNull {it.name.equals(field, ignoreCase = true)}
+                            ?.call(cellItem)
+                            ?.toString()
 
-                        // Loop through the substitution options for the field
-                        val possibleSubs = substitutions.subs[field]
-                        var showText = givenText
-                        for ((key, value) in possibleSubs!!) {
-                            // If the given text from the API equals a substitution then substitute to the correct value like "N" turns to "None"
-                            if (givenText == key) {
-                                Log.d("Substitution", "Replacing $givenText with $value")
-                                showText = value
-                                break
+                        Log.d("Substitution", "$field contains the text $givenText")
+                        // If the value was given by the API (meaning it wasnt empty or null in the database)
+                        if (givenText != null) {
+                            // Make the text item visible as it has a valid thing to show
+                            box.visibility = View.VISIBLE
+
+                            // Loop through the substitution options for the field
+                            val possibleSubs = substitutions.subs[field]
+                            var showText = givenText
+                            for ((key, value) in possibleSubs!!) {
+                                // If the given text from the API equals a substitution then substitute to the correct value like "N" turns to "None"
+                                if (givenText == key) {
+                                    Log.d("Substitution", "Replacing $givenText with $value")
+                                    showText = value
+                                    break
+                                }
                             }
+                            text.setText(showText.toString())
+                        } else {
+                            // This means that the API sent over an empty or null value
+                            box.visibility = View.GONE
+                            text.setText("UNSET")
                         }
-                        text.setText(showText.toString())
-                    } else {
-                        // This means that the API sent over an empty or null value
-                        box.visibility = View.GONE
-                        text.setText("UNSET")
-                    }
-                } else { // This will run if there is no substitution for a value
-                    Log.d("Substitution", "No change to make for $field")
-                    // Get the value current field is set to eg. cellItem.type will be 1, 2, etc...
-                    val givenText = cellItem::class.memberProperties
-                        .firstOrNull {it.name.equals(field, ignoreCase = true)}
-                        ?.call(cellItem)
-                        ?.toString()
-                    // If the value was given by the API (meaning it wasnt empty or null in the database)
-                    if (givenText != null) {
-                        var displayText = givenText.toString()
-                        // Any special cases can be handled here like well count
-                        if (field == "wellCount" && tagType.text.toString().startsWith("frozen", true)) {
-                            displayText = (displayText.toInt()/1000000).toString() + "M"
-                            wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.cell_count)
-                        } else if (field == "wellCount") {
-                            wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.well_count)
-                        }
+                    } else { // This will run if there is no substitution for a value
+                        Log.d("Substitution", "No change to make for $field")
+                        // Get the value current field is set to eg. cellItem.type will be 1, 2, etc...
+                        val givenText = cellItem::class.memberProperties
+                            .firstOrNull {it.name.equals(field, ignoreCase = true)}
+                            ?.call(cellItem)
+                            ?.toString()
+                        // If the value was given by the API (meaning it wasnt empty or null in the database)
+                        if (givenText != null) {
+                            var displayText = givenText.toString()
+                            // Any special cases can be handled here like well count
+                            if (field == "wellCount" && tagType.text.toString().startsWith("frozen", true)) {
+                                displayText = (displayText.toInt()/1000000).toString() + "M"
+                                wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.cell_count)
+                            } else if (field == "wellCount") {
+                                wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.well_count)
+                            }
 
-                        // Make the text item visible as it has a valid thing to show
-                        box.visibility = View.VISIBLE
-                        text.setText(regex.replace(text.text, displayText))
+                            // Make the text item visible as it has a valid thing to show
+                            box.visibility = View.VISIBLE
+                            text.setText(regex.replace(text.text, displayText))
+                        }
                     }
                 }
+            } else {
+                failedLookupWarning.visibility = View.VISIBLE
             }
+
         } else {
             Log.e("SummaryFragment", "Substitutions is null!")
         }
@@ -648,16 +664,16 @@ class SummaryFragment : Fragment() {
         override fun afterTextChanged(s: Editable?) {
             // Runs this when the user stops changing the text field
             val text = s.toString()
-            if (isValidLength(text)) {
-                resetUI()
-                tagHex.setText(tagAsciiToHex(text))
-                tagAscii.setText(text)
-                getCell(text)
-            } else if (text.length == 24) {
+            if (text.length == 24) {
                 resetUI()
                 tagHex.setText(text)
                 tagAscii.setText(hexToTagAscii(text))
                 getCell(hexToTagAscii(text))
+            } else if (isValidLength(text)) {
+                resetUI()
+                tagHex.setText(tagAsciiToHex(text))
+                tagAscii.setText(text)
+                getCell(text)
             } else {
                 Log.e("SummaryFragment", "Was given an invalid cellID! $text")
             }

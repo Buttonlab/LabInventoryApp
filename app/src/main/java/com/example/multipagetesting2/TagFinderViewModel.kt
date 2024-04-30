@@ -67,6 +67,9 @@ class TagFinderViewModel(): ViewModel() {
     private val mainThreadHandler = Handler(Looper.getMainLooper())
     private var mTimeTaken: Double = 0.0
 
+    // What power level the command is set to
+    private var powerLevel = true
+
 
     // Initializing the various functions
     init {
@@ -143,23 +146,23 @@ class TagFinderViewModel(): ViewModel() {
     fun setEnabled(state: Boolean) {
         val oldState = mEnabled
         mEnabled = state
-        if (oldState != mEnabled && getCommander() != null) {
+        if (oldState != mEnabled) {
             if (mEnabled) {
                 // Listen for transponders and triggers
-                if (!getCommander()!!.hasSynchronousResponder) {
-                    getCommander()!!.addSynchronousResponder()
+                if (!getCommander().hasSynchronousResponder) {
+                    getCommander().addSynchronousResponder()
                 }
-                getCommander()!!.addResponder(mSignalStrengthResponder)
-                getCommander()!!.addResponder(mSwitchResponder)
-                getCommander()!!.addResponder(mBarcodeResponder)
+                getCommander().addResponder(mSignalStrengthResponder)
+                getCommander().addResponder(mSwitchResponder)
+                getCommander().addResponder(mBarcodeResponder)
             } else {
                 // Stop listening for transponders and triggers
-                if (getCommander()!!.hasSynchronousResponder) {
-                    getCommander()!!.removeSynchronousResponder()
+                if (getCommander().hasSynchronousResponder) {
+                    getCommander().removeSynchronousResponder()
                 }
-                getCommander()!!.removeResponder(mSwitchResponder)
-                getCommander()!!.removeResponder(mSignalStrengthResponder)
-                getCommander()!!.removeResponder(mBarcodeResponder)
+                getCommander().removeResponder(mSwitchResponder)
+                getCommander().removeResponder(mSignalStrengthResponder)
+                getCommander().removeResponder(mBarcodeResponder)
             }
         }
     }
@@ -190,7 +193,7 @@ class TagFinderViewModel(): ViewModel() {
     }
 
     // Get and set for the Ascii Commander
-    private fun getCommander(): AsciiCommander? {
+    private fun getCommander(): AsciiCommander {
         return mCommander
     }
     fun setCommander(commander: AsciiCommander?) {
@@ -204,13 +207,13 @@ class TagFinderViewModel(): ViewModel() {
     // Reset the reader
     fun resetDevice() {
         Log.d("TagFinderViewModel", "resetDevice")
-        if (getCommander() != null && getCommander()?.isConnected == true) {
+        if (getCommander().isConnected) {
             try {
                 performTask {
-                    getCommander()!!.executeCommand(FactoryDefaultsCommand())
+                    getCommander().executeCommand(FactoryDefaultsCommand())
                     mFindTagCommand.resetParameters = TriState.YES
                     mFindTagCommand.takeNoAction = TriState.YES
-                    getCommander()!!.executeCommand(mFindTagCommand)
+                    getCommander().executeCommand(mFindTagCommand)
 
                     mUseFindTagCommand = mFindTagCommand.isSuccessful
                     updateTargetParams()
@@ -241,7 +244,7 @@ class TagFinderViewModel(): ViewModel() {
     // Update the target the reader is searching for
     fun updateTargetParams() {
         Log.d("TagFinderViewModel", "updateTargetParams($mTargetTagEpc)")
-        if (getCommander() != null && getCommander()?.isConnected == true) {
+        if (getCommander().isConnected == true) {
             // Configure the switch actions
             val switchActionCommand = SwitchActionCommand.synchronousCommand() // MAY NOT WORK WITH SYNCHRONOUS
             switchActionCommand.resetParameters = TriState.YES
@@ -254,7 +257,7 @@ class TagFinderViewModel(): ViewModel() {
                 switchActionCommand.singlePressRepeatDelay = 10
             }
 
-            getCommander()!!.executeCommand(switchActionCommand)
+            getCommander().executeCommand(switchActionCommand)
 
             var success = false
 
@@ -267,6 +270,23 @@ class TagFinderViewModel(): ViewModel() {
                 if (targetEPC!!.length % 2 == 1){
                     targetEPC += "0"
                 }
+                // Getting only the ID of the cell to use as the data mask
+                var targetOffset = 32
+                if (targetEPC.startsWith("31") || targetEPC.startsWith("33")) {  // Primary cell tag
+                    targetEPC = targetEPC.takeLast(10)
+                    targetOffset += 56
+                }
+                // The below would filter only by the ID like primary cell above but is not used as it degrades performance
+//                else if (targetEPC.startsWith("32") || targetEPC.startsWith("34")) {  // Immortal cell tag
+//                    targetEPC = targetEPC.takeLast(12)
+//                    targetOffset += 48
+//                } else if (targetEPC.startsWith("35")) {  // Frozen Other tag
+//                    targetEPC = targetEPC.takeLast(6)
+//                    targetOffset += 72
+//                }else if (targetEPC.startsWith("37")) {  // Mucus Sample tag
+//                    targetEPC = targetEPC.takeLast(4)
+//                    targetOffset += 80
+//                }
 
                 // Use the .ft command if it exists on the reader
                 if (mUseFindTagCommand) {
@@ -276,13 +296,18 @@ class TagFinderViewModel(): ViewModel() {
 
                     if (getEnabled()) {
                         mFindTagCommand.selectData = targetEPC
-                        mFindTagCommand.selectLength = mTargetTagEpc!!.length.times(4)
-                        mFindTagCommand.selectOffset = 0x20
+                        mFindTagCommand.selectLength = targetEPC!!.length.times(4)
+                        mFindTagCommand.selectOffset = targetOffset
                         Log.d("TagFinderViewModel", "getEnabled is true \n${mFindTagCommand.selectData}\n${mFindTagCommand.selectLength}\n${mFindTagCommand.selectOffset}")
+                    }
+                    if (powerLevel) {
+                        mFindTagCommand.outputPower = getCommander().deviceProperties.maximumCarrierPower
+                    } else {
+                        mFindTagCommand.outputPower = 12
                     }
 
                     mFindTagCommand.takeNoAction = TriState.YES
-                    getCommander()!!.executeCommand(mFindTagCommand)
+                    getCommander().executeCommand(mFindTagCommand)
                     success = mFindTagCommand.isSuccessful
                 } else {
                     Log.d("TagFinderViewModel", "Using the .iv command")
@@ -298,15 +323,20 @@ class TagFinderViewModel(): ViewModel() {
                         mInventoryCommand.queryTarget = QueryTarget.TARGET_B
                         mInventoryCommand.inventoryOnly = TriState.NO
                         mInventoryCommand.selectData = targetEPC
-                        mInventoryCommand.selectOffset = 0x20
-                        mInventoryCommand.selectLength = mTargetTagEpc!!.length.times(4)
+                        mInventoryCommand.selectOffset = targetOffset
+                        mInventoryCommand.selectLength = targetEPC!!.length.times(4)
                         mInventoryCommand.selectAction = SelectAction.DEASSERT_SET_B_NOT_ASSERT_SET_A
                         mInventoryCommand.selectTarget = SelectTarget.SESSION_0
                         mInventoryCommand.useAlert = TriState.NO
                     }
+                    if (powerLevel) {
+                        mInventoryCommand.outputPower = getCommander().deviceProperties.maximumCarrierPower
+                    } else {
+                        mInventoryCommand.outputPower = 12
+                    }
 
                     Log.d("TagFinderViewModel", "Inventory command: ${mInventoryCommand.commandLine}")
-                    getCommander()!!.executeCommand(mInventoryCommand)
+                    getCommander().executeCommand(mInventoryCommand)
                     success = mInventoryCommand.isSuccessful
                 }
             }
@@ -322,40 +352,56 @@ class TagFinderViewModel(): ViewModel() {
     // Function to fully reset reader settings
     fun cleanup() {
         Log.d("TagFinderViewModel", "Clearing all settings")
-        if (getCommander() != null && getCommander()?.isConnected == true) {
+        if (getCommander().isConnected == true) {
             val fdCommand = FactoryDefaultsCommand()
             fdCommand.resetParameters = TriState.YES
-            getCommander()!!.executeCommand(fdCommand)
+            getCommander().executeCommand(fdCommand)
             val switchCommand = SwitchActionCommand()
             switchCommand.resetParameters = TriState.YES
-            getCommander()!!.executeCommand((switchCommand))
+            getCommander().executeCommand((switchCommand))
         }
     }
 
     // Function to perform a given task and make sure its not already being done
     private fun performTask(runnable: Runnable) {
         val task = runnable
-        if (getCommander() == null) {
-            Log.e("TagFinderViewModel", "No Ascii Commander set")
-        } else {
-            val startTime = Date()
-            executorService.execute {
-                lateinit var exception: Exception
-                try {
-                    mbusy = true
-                    task.run()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    Log.e("TagFinderViewModel", "Error when running given task")
-                } finally {
-                    mainThreadHandler.post {
-                        mbusy = false
-                        val finishTime = Date()
-                        mTimeTaken = (finishTime.time - startTime.time)/ 1000.0
-                    }
+
+        val startTime = Date()
+        executorService.execute {
+            lateinit var exception: Exception
+            try {
+                mbusy = true
+                task.run()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Log.e("TagFinderViewModel", "Error when running given task")
+            } finally {
+                mainThreadHandler.post {
+                    mbusy = false
+                    val finishTime = Date()
+                    mTimeTaken = (finishTime.time - startTime.time)/ 1000.0
                 }
             }
         }
+
+    }
+
+    // Setting the power level for the commands True is high and False is low
+    fun setPowerLevel(givenLevel: Boolean) {
+        if (givenLevel) {
+            powerLevel = true
+            Log.d("TagFinderFragment", "Power level is now max")
+            updateTarget()
+        } else {
+            powerLevel = false
+            Log.d("TagFinderFragment", "Power level is now low")
+            updateTarget()
+        }
+    }
+
+    // Getting the power level setting
+    fun getPowerLevel(): Boolean {
+        return powerLevel
     }
 
     private fun sendEpcNotification(message: String) {

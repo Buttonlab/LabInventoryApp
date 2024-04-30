@@ -122,7 +122,7 @@ class RfidTagsAdapter(private val tags: ArrayList<CellItem>) : RecyclerView.Adap
 
             textVisible = "$otherType    $otherGenemod   $gene1   $gene2\n$primaryResistance  $vectorResistance  Clone#$clone  #${number}  ${owner}"
         } else if (cell.type.equals("6")) {
-            val name = cell.name ?: cell.id
+            val name = if (!cell.name.isNullOrEmpty()) cell.name.replace("\n", "") else cell.id
 
             textVisible = "Basic Item:\n${name}"
         } else if (cell.type.equals("7")) {

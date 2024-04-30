@@ -1102,7 +1102,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:text="Scan a tag to see it's information!"
-                    android:textSize="26sp"/>
+                    android:textSize="26sp"
+                    android:textAlignment="center"/>
+                <TextView
+                    android:id="@+id/failedLookupWarning"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="@string/failedLookupWarning"
+                    android:textSize="26sp"
+                    android:textAlignment="center"
+                    android:textColor="@color/warning" />
 
             </LinearLayout>
 

@@ -258,7 +258,7 @@ fun asciiToCrc32(values: List<String>): String {
 
 // Function to check is ascii is correct length for one of the types
 fun isValidLength(asciiEPC: String): Boolean {
-    return intArrayOf(14,16).contains(asciiEPC.length)
+    return intArrayOf(14,16,24).contains(asciiEPC.length)
 }
 
 fun isValidCharacters(asciiEPC: String): Boolean {

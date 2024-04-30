@@ -160,6 +160,28 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/sourceBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Source: "
+                    android:textAlignment="center"
+                    android:textSize="26sp" />
+                <TextView
+                    android:id="@+id/tagSource"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tag_source_value"
+                    android:textAlignment="center"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/cellTypeBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -291,12 +313,44 @@
                     android:textSize="20sp" />
             </LinearLayout>
 
+            <LinearLayout
+                android:id="@+id/nameBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Name: "
+                    android:textAlignment="center"
+                    android:textSize="26sp" />
+                <TextView
+                    android:id="@+id/tagName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/tag_name_value"
+                    android:textAlignment="center"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/scanInstructions"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="Scan a tag to see it's information!"
-                android:textSize="26sp"/>
+                android:textSize="26sp"
+                android:textAlignment="center"/>
+
+            <TextView
+                android:id="@+id/failedLookupWarning"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@string/failedLookupWarning"
+                android:textColor="@color/warning"
+                android:textSize="26sp"
+                android:textAlignment="center"/>
 
         </LinearLayout>
 

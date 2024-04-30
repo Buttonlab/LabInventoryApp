@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,6 +34,9 @@ class InventoryFragment : Fragment() {
     // Creating an instance of the InventoryViewModel
     private lateinit var viewModel: InventoryViewModel
 
+    // Initialize the basic ViewModel
+    private val basicModel: BasicViewModel by activityViewModels()
+
     // Variables for the data
     private var tagList = ArrayList<CellItem>()
     private val uniqueTags: MutableSet<String> = mutableSetOf()
@@ -47,9 +51,12 @@ class InventoryFragment : Fragment() {
     private var touchListener: RecyclerTouchListener? = null
 
     // Holding the detected location tag
+    private lateinit var locationHeader: String
+    private lateinit var locationFooter: String
     private val locationMap = mutableMapOf<String, Int>()
     private var location: String? = null
     private lateinit var locationText: TextView
+    private lateinit var locationTypeWarning: TextView
 
     // The textView for the tag count
     private lateinit var tagCounter: TextView
@@ -113,10 +120,10 @@ class InventoryFragment : Fragment() {
 
             viewModel.epcNotification.observe(viewLifecycleOwner) {message -> // This is where the RFID and BC scanned tags will show up
                 if (message != null) {
-                    if (!uniqueTags.contains(message)) {
-                        uniqueTags.add(message)
+                    val splitMsg = message.split(":", limit = 2)
+                    if (!uniqueTags.contains(splitMsg.last())) {
+                        uniqueTags.add(splitMsg.last())
 
-                        val splitMsg = message.split(":", limit = 2)
                         if (!(splitMsg[1].startsWith("21") && splitMsg[1].endsWith("21"))) { // Don't display location tags and stop if empty
                             val newMsg = hexToTagAscii(splitMsg[1])
                             if (isValidAsciiID(newMsg)) { // Don't display a tag if it does not contain valid characters
@@ -129,8 +136,6 @@ class InventoryFragment : Fragment() {
                                     addTagToList(newMsg)
                                 }
                             }
-
-
                         }
                     }
                 }
@@ -140,6 +145,7 @@ class InventoryFragment : Fragment() {
                 touchListener = RecyclerTouchListener(requireContext(), rvTags, object : RecyclerTouchListener.ClickListener {
                     override fun onClick(view: View, position: Int) {
                         Toast.makeText(requireContext(), "Tag value copied!", Toast.LENGTH_SHORT).show()
+                        basicModel.setSelectedTag(reprCell(tagList[position])) // Sending the tapped item to be saved in the basic view model
                     }
                     override fun onLongClick(view: View, position: Int) {
                         val removeTag = tagList[position]
@@ -157,13 +163,17 @@ class InventoryFragment : Fragment() {
 
         // Used to check for location tags and save the strongest response
         locationText = binding.locationText
+        locationTypeWarning = binding.basicWarningText
+        locationTypeWarning.visibility = View.GONE
+        locationHeader = "21"
+        locationFooter = "21"
         viewModel.epcRssiNotification.observe(viewLifecycleOwner) { message ->
             Log.d("InventoryFragment", "epcRssiNotification: ${message}")
             if (message != null) {
                 val mList = message.split(":", limit=2)
                 val epc = mList[0]
                 val rssi = mList[1].toIntOrNull()
-                if (epc.startsWith("21") && epc.endsWith("21")) {
+                if (epc.startsWith(locationHeader) && epc.endsWith(locationFooter) && (locationHeader == "2124" || (locationHeader == "21" && epc.substring(2,4) != "24"))) {
                     Log.d("InventoryFragment", "Location tag received: ${message}")
                     if (rssi != null) {
                         locationMap[epc] = rssi
@@ -194,6 +204,27 @@ class InventoryFragment : Fragment() {
                     Log.d("InventoryFragment", "Location map: ${locationMap}")
                     Log.d("InventoryFragment", "Max location: ${location}")
                 }
+            }
+        }
+
+        // Used to add the tap feature for allowing only basic item location tags
+        locationText.setOnClickListener {
+            if (locationHeader == "21" && locationFooter == "21") {
+                locationHeader = "2124"
+                locationFooter = "2421"
+                locationTypeWarning.visibility = View.VISIBLE
+                location = null
+                locationMap.clear()
+                numAtLoc = -1
+                locationText.setText("Location: -Scan to find location-")
+            } else {
+                locationHeader = "21"
+                locationFooter = "21"
+                locationTypeWarning.visibility = View.GONE
+                location = null
+                locationMap.clear()
+                numAtLoc = -1
+                locationText.setText("Location: -Scan to find location-")
             }
         }
 
@@ -327,8 +358,9 @@ class InventoryFragment : Fragment() {
 
         // Reset all of the tag lists and counters to make sure nothing is saved between leaving and returning to the page
         tagAdapter.clearData()
-        tagList.clear()
         viewModel.clearUniques()
+        tagList.clear()
+        uniqueTags.clear()
         tagCounter.setText("---")
         location = null
         locationMap.clear()
