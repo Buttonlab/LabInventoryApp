@@ -53,6 +53,7 @@ class InventoryFragment : Fragment() {
     // Holding the detected location tag
     private lateinit var locationHeader: String
     private lateinit var locationFooter: String
+    private var basicOnly = false
     private val locationMap = mutableMapOf<String, Int>()
     private var location: String? = null
     private lateinit var locationText: TextView
@@ -126,7 +127,7 @@ class InventoryFragment : Fragment() {
 
                         if (!(splitMsg[1].startsWith("21") && splitMsg[1].endsWith("21"))) { // Don't display location tags and stop if empty
                             val newMsg = hexToTagAscii(splitMsg[1])
-                            if (isValidAsciiID(newMsg)) { // Don't display a tag if it does not contain valid characters
+                            if (isValidAsciiID(newMsg) && ((basicOnly && newMsg.startsWith("6")) || !basicOnly)) { // Don't display a tag if it does not contain valid characters
 
                                 var inDB = true
                                 if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
@@ -167,6 +168,7 @@ class InventoryFragment : Fragment() {
         locationTypeWarning.visibility = View.GONE
         locationHeader = "21"
         locationFooter = "21"
+        basicOnly = false
         viewModel.epcRssiNotification.observe(viewLifecycleOwner) { message ->
             Log.d("InventoryFragment", "epcRssiNotification: ${message}")
             if (message != null) {
@@ -210,6 +212,7 @@ class InventoryFragment : Fragment() {
         // Used to add the tap feature for allowing only basic item location tags
         locationText.setOnClickListener {
             if (locationHeader == "21" && locationFooter == "21") {
+                basicOnly = true
                 locationHeader = "2124"
                 locationFooter = "2421"
                 locationTypeWarning.visibility = View.VISIBLE
@@ -218,6 +221,7 @@ class InventoryFragment : Fragment() {
                 numAtLoc = -1
                 locationText.setText("Location: -Scan to find location-")
             } else {
+                basicOnly = false
                 locationHeader = "21"
                 locationFooter = "21"
                 locationTypeWarning.visibility = View.GONE
@@ -300,14 +304,21 @@ class InventoryFragment : Fragment() {
                                     val response = DataRepository.applyActions(request)
                                     if (response.isSuccessful) {
                                         val msg = response.body()?.success
+                                        val failedItems = response.body()?.failed
                                         Log.d("InventoryFragment", "Action call works:\n $msg")
                                         Toast.makeText(requireContext(), "Tag(s) successfully inventoried", Toast.LENGTH_SHORT).show()
                                         withContext(Dispatchers.Main) {
-                                            tagAdapter.clearData()
+                                            if (failedItems != null) {
+                                                tagList.retainAll{item -> failedItems.contains(reprCell(item))}
+                                                tagAdapter.updateData(tagList)
+                                                viewModel.clearUniques()
+                                            } else {
+                                                tagList.clear()
+                                                tagAdapter.clearData()
+                                                viewModel.clearUniques()
+                                            }
                                             location = null
                                             locationMap.clear()
-                                            tagList.clear()
-                                            viewModel.clearUniques()
                                             tagCounter.setText("---")
                                         }
                                         break

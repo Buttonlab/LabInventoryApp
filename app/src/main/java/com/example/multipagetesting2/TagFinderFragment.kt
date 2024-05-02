@@ -1103,6 +1103,18 @@ class TagFinderFragment : Fragment() {
                 // Updating the list of tags in the dropdown box
                 targetAdapter!!.notifyDataSetChanged()
             } else {
+                genotypeLayout.visibility = View.GONE
+                distNumLayout.visibility = View.GONE
+                surfaceLayout.visibility = View.GONE
+                cellTypeLayout.visibility = View.GONE
+                sourceLayout.visibility = View.GONE
+                genemodLayout.visibility = View.GONE
+                resistanceLayout.visibility = View.GONE
+                otherTypeLayout.visibility = View.GONE
+                otherGenemodLayout.visibility = View.GONE
+                primaryResistanceLayout.visibility = View.GONE
+                locationLayout.visibility = View.GONE
+
                 targetAdapter!!.clear()
                 targetAdapter!!.addAll(cellsList)
                 targetAdapter!!.notifyDataSetChanged()

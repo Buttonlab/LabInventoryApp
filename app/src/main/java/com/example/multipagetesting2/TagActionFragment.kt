@@ -600,6 +600,15 @@ class TagActionFragment : Fragment() {
                                         val msg = response.body()?.success
                                         Log.d("InventoryFragment", "Action call works:\n $msg")
                                         Toast.makeText(requireContext(), "Action '$chosenAction' applied.", Toast.LENGTH_SHORT).show()
+                                        withContext(Dispatchers.Main) {
+                                            tagAdapter.clearData()
+                                            viewModel.clearUniques()
+                                            tagList.clear()
+                                            uniqueTags.clear()
+                                            tagCounter.text = "---"
+                                            actionSelect.text.clear()
+                                            resetFields()
+                                        }
                                         break
                                     } else {
                                         try {

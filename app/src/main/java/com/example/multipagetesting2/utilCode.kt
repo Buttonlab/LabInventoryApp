@@ -316,7 +316,7 @@ fun cellFromEPC(cellID: String): CellItem {
         foundParts.put("unique", cellID.substring(10))
     } else if (cellID.startsWith("2") || cellID.startsWith("4")) {
         // Add the parts of an immortal cell
-        foundParts.put("id", cellID.substring(cellID.length-7))
+        foundParts.put("id", cellID.substring(cellID.length-8))
         foundParts.put("type", cellID.substring(0, 1))
         foundParts.put("cellType", cellID.substring(1, 2))
         foundParts.put("genemod", cellID.substring(2, 3))
@@ -330,7 +330,7 @@ fun cellFromEPC(cellID: String): CellItem {
         foundParts.put("unique", cellID.substring(12))
     } else if (cellID.startsWith("5")) {
         // Add the parts of a frozen bacteria
-        foundParts.put("id", cellID.substring(cellID.length-8))
+        foundParts.put("id", cellID.substring(cellID.length-5))
         foundParts.put("type", cellID.substring(0, 1))
         foundParts.put("otherType", cellID.substring(1, 2))
         foundParts.put("otherGenemod", cellID.substring(2, 3))
@@ -347,7 +347,7 @@ fun cellFromEPC(cellID: String): CellItem {
         foundParts.put("type", "6")
     } else if (cellID.startsWith("7")) {
         // Add the parts of an immortal cell
-        foundParts.put("id", cellID.substring(cellID.length-7))
+        foundParts.put("id", cellID.substring(cellID.length-4))
         foundParts.put("type", cellID.substring(0, 1))
         foundParts.put("cellType", cellID.substring(1, 2))
         foundParts.put("source", cellID.substring(2, 3))

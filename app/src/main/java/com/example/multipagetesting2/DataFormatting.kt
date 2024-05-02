@@ -13,7 +13,8 @@ import java.time.LocalDateTime
 // Used by the endpoints which dont otherwise return data like the kill and action endpoints
 data class BasicResponse(
     val success: String?,
-    val error: String?
+    val error: String?,
+    val failed: List<String>?
 )
 
 data class FieldsResponse(
