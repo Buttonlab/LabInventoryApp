@@ -33,6 +33,10 @@
         android:title="API Queue"
         app:showAsAction="never" />
     <item
+        android:id="@+id/writeTagFragment"
+        android:title="Write Tag"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/connect_reader_menu_item"
         android:title="@string/connect_reader_menu_item_text"
         app:showAsAction="never"/>

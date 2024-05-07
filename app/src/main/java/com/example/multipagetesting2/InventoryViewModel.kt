@@ -56,7 +56,7 @@ class InventoryViewModel(): ViewModel() {
     private var mInventoryResponder: InventoryCommand
     private var mBarcodeResponder: BarcodeCommand
     //private val mAlertCommand: AlertCommand
-    val command: InventoryCommand
+    private val command: InventoryCommand
 
     init {
         //mCommander = outCommander
@@ -80,7 +80,7 @@ class InventoryViewModel(): ViewModel() {
         // Also capture the responses that were not from App commands
         mInventoryResponder.setCaptureNonLibraryResponses(true)
 
-        mInventoryResponder.transponderReceivedDelegate = ITransponderReceivedDelegate { transponder, moreAvailable ->
+        mInventoryResponder.transponderReceivedDelegate = ITransponderReceivedDelegate { transponder, _ ->
             if (sendRSSI) {
                 sendEpcRssiNotification("${transponder.epc}:${transponder.rssi}")
             }

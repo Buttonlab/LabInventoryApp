@@ -357,8 +357,8 @@ class SummaryFragment : Fragment() {
         loadCells()
 
         // Setting the target if the user has made one
-        if (basicModel.getSelectedTag().isNotEmpty()) {
-            tagSelect.setText(basicModel.getSelectedTag())
+        if (basicModel.selectedTag.isNotEmpty()) {
+            tagSelect.setText(basicModel.selectedTag)
         }
     }
 
@@ -640,6 +640,10 @@ class SummaryFragment : Fragment() {
                                 wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.cell_count)
                             } else if (field == "wellCount") {
                                 wellCountTitle.text = ContextCompat.getString(requireContext(), R.string.well_count)
+                            } else if (arrayOf("distNum", "number").contains(field) || (field == "passage" && arrayOf("1", "3").contains(cellItem.type))) {
+                                displayText = Integer.parseInt(givenText, 36).toString()
+                            } else if (arrayOf("clone").contains(field) || (field == "passage" && arrayOf("2", "4").contains(cellItem.type))) {
+                                displayText = Integer.parseInt(givenText, 16).toString()
                             }
 
                             // Make the text item visible as it has a valid thing to show

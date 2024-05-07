@@ -425,8 +425,10 @@ class TagFinderFragment : Fragment() {
         }
 
         // Triggering the text changed listener if the user had selected a tag
-        if (basicModel.getSelectedTag().isNotEmpty()) {
-            mTargetTagEditText.setText(basicModel.getSelectedTag())
+        if (basicModel.writeTarget.isNotEmpty()) {
+            mTargetTagEditText.setText(basicModel.writeTarget)
+        } else if (basicModel.selectedTag.isNotEmpty()) {
+            mTargetTagEditText.setText(basicModel.selectedTag)
         }
 
         // Calling the API cells function

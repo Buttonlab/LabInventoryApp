@@ -196,8 +196,8 @@ class KillFragment : Fragment() {
         }
 
         // Checking the saved target from inventory page
-        if (basicModel.getSelectedTag().isNotEmpty()) {
-            setTargetItem(basicModel.getSelectedTag())
+        if (basicModel.selectedTag.isNotEmpty()) {
+            setTargetItem(basicModel.selectedTag)
         }
     }
 
@@ -350,7 +350,16 @@ class KillFragment : Fragment() {
                         if (!givenText.isNullOrEmpty()) {
                             // Make the text item visible as it has a valid thing to show
                             box.visibility = View.VISIBLE
-                            text.setText(regex.replace(text.text, givenText))
+
+                            // Convert numbers to correct base
+                            var outputVal = givenText
+                            if (arrayOf("distNum", "number").contains(field) || (field == "passage" && arrayOf("1", "3").contains(cellItem.type))) {
+                                outputVal = Integer.parseInt(givenText, 36).toString()
+                            } else if (arrayOf("clone").contains(field) || (field == "passage" && arrayOf("2", "4").contains(cellItem.type))) {
+                                outputVal = Integer.parseInt(givenText, 16).toString()
+                            }
+
+                            text.setText(regex.replace(text.text, outputVal))
                         }
                     }
                 }

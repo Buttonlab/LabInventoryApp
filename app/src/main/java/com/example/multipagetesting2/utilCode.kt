@@ -230,14 +230,19 @@ fun hexToAscii(hex: String): String {
 // Function to convert the tag hex to the crc32 password
 fun hexToCrc32(hex: String): String {
     val crcCalc = CRC32()
+    crcCalc.update(hexToByteArray(hex))
+    return "%08X".format(crcCalc.value)
+}
+
+// Used to convert a give hex value to bytes
+fun hexToByteArray(hex: String): ByteArray {
     val byteArray = ByteArray(hex.length / 2)
     for (i in byteArray.indices) {
         val index = i * 2
         val j = hex.substring(index, index + 2).toInt(16)
         byteArray[i] = j.toByte()
     }
-    crcCalc.update(byteArray)
-    return "%08X".format(crcCalc.value)
+    return byteArray
 }
 
 // Function to convert an ascii string to crc32

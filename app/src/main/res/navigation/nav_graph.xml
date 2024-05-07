@@ -41,4 +41,9 @@
         android:name="com.example.multipagetesting2.ApiQueueFragment"
         android:label="API Queue"
         tools:layout="@layout/fragment_api_queue" />
+    <fragment
+        android:id="@+id/writeTagFragment"
+        android:name="com.example.multipagetesting2.WriteTagFragment"
+        android:label="Write Tag"
+        tools:layout="@layout/fragment_write_tag" />
 </navigation>

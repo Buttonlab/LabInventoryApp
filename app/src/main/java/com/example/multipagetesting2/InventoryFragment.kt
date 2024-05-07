@@ -119,7 +119,7 @@ class InventoryFragment : Fragment() {
         rvTags.apply {
             layoutManager = LinearLayoutManager(requireActivity())
 
-            viewModel.epcNotification.observe(viewLifecycleOwner) {message -> // This is where the RFID and BC scanned tags will show up
+            viewModel.epcNotification.observe(viewLifecycleOwner) { message -> // This is where the RFID and BC scanned tags will show up
                 if (message != null) {
                     val splitMsg = message.split(":", limit = 2)
                     if (!uniqueTags.contains(splitMsg.last())) {
@@ -128,14 +128,17 @@ class InventoryFragment : Fragment() {
                         if (!(splitMsg[1].startsWith("21") && splitMsg[1].endsWith("21"))) { // Don't display location tags and stop if empty
                             val newMsg = hexToTagAscii(splitMsg[1])
                             if (isValidAsciiID(newMsg) && ((basicOnly && newMsg.startsWith("6")) || !basicOnly)) { // Don't display a tag if it does not contain valid characters
+                                if ((basicOnly && newMsg.startsWith("66")) || (!basicOnly && !newMsg.startsWith("66"))) {  // Only display basic tags in basic mode and vice versa
+                                    var inDB = true
+                                    if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
+                                        inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
+                                    }
+                                    if (newMsg.any { !it.isLetterOrDigit() || !it.isWhitespace() } && inDB && isValidLength(newMsg)) {
+                                        addTagToList(newMsg)
+                                    }
+                                }
 
-                                var inDB = true
-                                if ((possibleTypes != null) && (!possibleTypes.contains(newMsg.first().toString()))) {
-                                    inDB = false // Check if the first letter is a valid type in the database to ensure it is a valid tag
-                                }
-                                if (newMsg.any { !it.isLetterOrDigit() || !it.isWhitespace() } && inDB && isValidLength(newMsg)) {
-                                    addTagToList(newMsg)
-                                }
+
                             }
                         }
                     }
@@ -146,7 +149,7 @@ class InventoryFragment : Fragment() {
                 touchListener = RecyclerTouchListener(requireContext(), rvTags, object : RecyclerTouchListener.ClickListener {
                     override fun onClick(view: View, position: Int) {
                         Toast.makeText(requireContext(), "Tag value copied!", Toast.LENGTH_SHORT).show()
-                        basicModel.setSelectedTag(reprCell(tagList[position])) // Sending the tapped item to be saved in the basic view model
+                        basicModel.selectedTag = reprCell(tagList[position]) // Sending the tapped item to be saved in the basic view model
                     }
                     override fun onLongClick(view: View, position: Int) {
                         val removeTag = tagList[position]

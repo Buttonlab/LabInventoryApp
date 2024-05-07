@@ -203,6 +203,11 @@ class  MainActivity : AppCompatActivity() {
                 navController.navigate(R.id.apiQueueFragment)
                 true
             }
+            R.id.writeTagFragment -> {
+                val navController = findNavController(R.id.nav_host_fragment_content_main)
+                navController.navigate(R.id.writeTagFragment)
+                true
+            }
             R.id.connect_reader_menu_item -> {
                 mIsSelectingReader = true
                 var index = -1

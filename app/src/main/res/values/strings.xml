@@ -73,4 +73,10 @@
     <string name="tag_mucus_concentration_value">---tag mucus concentration value---</string>
     <string name="tag_harvest_date_value">---tag harvest date value---</string>
     <string name="failedLookupWarning">The scanned tag could not be found, if you are connected to the network it has likely been killed already!</string>
+    <string name="write_instructions_1">To start scan the QR code of the item you want by double pulling the trigger. This is what you want the new tag to appear as.</string>
+    <string name="rfid_scan_tag">RFID scan tag</string>
+    <string name="scan_item_qr_code">Scan item QR code</string>
+    <string name="write_instructions_2">Next you need to scan the tag you want to overwrite with the RFID by holding the trigger. It will try to select the closest tag but you can tap on it and go to Tag Finder to verify you are targeting the correct tag.</string>
+    <string name="write_instructions_3">Next you need to scan the QR code of the item you want by double pulling the trigger. This is what you want the new tag to appear as.</string>
+    <string name="write_instructions_4">Now that you have both simply tap \'Write\' at the bottom while pointing the reader at the tag to overwrite. A popup will show success or failure.</string>
 </resources>
